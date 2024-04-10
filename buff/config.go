@@ -1,0 +1,28 @@
+package buff
+
+// BUFF CONFIGS
+
+const (
+	BUFF_LISTING_API            = "https://buff.163.com/api/market/goods/sell_order"
+	BUFF_TRANSACTION_API        = "https://buff.163.com/api/market/goods/bill_order"
+	BUFF_CSGO_NAME              = "csgo"
+	BUFF_LISTING_ITEMS_PER_PAGE = 10
+	SLEEP_TIME                  = 10
+)
+
+var BUFF_HEADERS = map[string]string{
+	"Accept":             "application/json, text/javascript, */*; q=0.01",
+	"Accept-Encoding":    "gzip, deflate, br, zstd",
+	"Accept-Language":    "en-HK,en;q=0.9,zh-HK;q=0.8,zh;q=0.7,en-GB;q=0.6,en-US;q=0.5,zh-CN;q=0.4,zh-TW;q=0.3",
+	"Connection":         "keep-alive",
+	"Host":               "buff.163.com",
+	"Referer":            "https://buff.163.com/goods/759401",
+	"Sec-Fetch-Dest":     "empty",
+	"Sec-Fetch-Mode":     "cors",
+	"Sec-Fetch-Site":     "same-origin",
+	"User-Agent":         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+	"X-Requested-With":   "XMLHttpRequest",
+	"sec-ch-ua":          "\"Google Chrome\";v=\"123\", \"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"123\"",
+	"sec-ch-ua-mobile":   "?0",
+	"sec-ch-ua-platform": "\"Windows\"",
+}
