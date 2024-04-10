@@ -6,6 +6,6 @@ import (
 )
 
 type Parser interface {
-	ParseItemListings(resp *http.Response) ([]shared.Item, error)
-	ParseItemTransactions(resp *http.Response) ([]shared.Transaction, error)
+	ParseItemListings(name string, resp *http.Response) (*shared.Item, []shared.Listing, error)
+	ParseItemTransactions(name string, resp *http.Response) ([]shared.Transaction, error)
 }

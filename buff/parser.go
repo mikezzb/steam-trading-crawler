@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"steam-trading/shared"
+
+	"github.com/mikezzb/steam-trading-crawler/utils"
 )
 
 type BuffParser struct {
@@ -87,17 +89,17 @@ func ExtractLowestPrice(listing []shared.Listing) string {
 	return lowestPrice
 }
 
-func (p *BuffParser) formatItem(data BuffListingResponseData, listing []shared.Listing) (*shared.Item, error) {
+func (p *BuffParser) formatItem(data BuffListingResponseData, listings []shared.Listing) (*shared.Item, error) {
 	item := getFirstValue(data.Data.GoodsInfos)
 
 	formattedItems := shared.Item{}
 	formattedItems.SteamPrice = item.SteamPrice
-	formattedItems.MarketPrice = ExtractLowestPrice(listing)
+	formattedItems.MarketPrice = ExtractLowestPrice(listings)
 
 	return &formattedItems, nil
 }
 
-func (p *BuffParser) ParseItemListings(resp *http.Response) (*shared.Item, []shared.Listing, error) {
+func (p *BuffParser) ParseItemListings(name string, resp *http.Response) (*shared.Item, []shared.Listing, error) {
 	// marshal response
 	var data BuffListingResponseData
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
@@ -105,12 +107,12 @@ func (p *BuffParser) ParseItemListings(resp *http.Response) (*shared.Item, []sha
 	}
 
 	// format data
-	if listing, err := p.formatItemListings(data); err != nil {
+	if listings, err := p.formatItemListings(data); err != nil {
 		return nil, nil, err
-	} else if item, err := p.formatItem(data, listing); err != nil {
+	} else if item, err := p.formatItem(data, listings); err != nil {
 		return nil, nil, err
 	} else {
-		return item, listing, nil
+		return item, utils.PostFormatListing(name, listings), nil
 	}
 }
 

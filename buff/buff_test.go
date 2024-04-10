@@ -17,6 +17,7 @@ func TestBuffCrawler_DoReq(t *testing.T) {
 }
 
 func TestBuffParser_ParseItemListings(t *testing.T) {
+	name := "★ Karambit | Marble Fade (Factory New)"
 	mockResJsonPath := "mocks/listing_res.json"
 	mockRes, err := os.ReadFile(mockResJsonPath)
 	if err != nil {
@@ -30,7 +31,7 @@ func TestBuffParser_ParseItemListings(t *testing.T) {
 	}
 
 	p := &BuffParser{}
-	item, listings, err := p.ParseItemListings(mockResHttp)
+	item, listings, err := p.ParseItemListings(name, mockResHttp)
 	if err != nil {
 		t.Errorf("Failed to parse item listings: %v", err)
 	}
