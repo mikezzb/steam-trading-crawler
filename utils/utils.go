@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"io"
@@ -19,36 +20,48 @@ func PostFormatListing(name string, listings []shared.Listing) []shared.Listing 
 }
 
 // decodes a gzip-encoded reader and returns a decoded reader.
-func DecodeReader(reader io.Reader) (io.ReadCloser, error) {
-	// Attempt to create a gzip reader
-	gzReader, err := gzip.NewReader(reader)
-	if err != nil {
-		// If the input is not gzip-encoded, return the original reader
-		if err == gzip.ErrHeader {
-			return io.NopCloser(reader), nil
+// DecodeReader decodes a gzip-encoded reader and returns a decoded reader.
+
+// DecodeReader reads from the given reader and decodes JSON or gzipped JSON.
+func ReadBytes(b []byte) (io.ReadCloser, error) {
+	// Check if the byte slice starts with the gzip magic numbers.
+	if len(b) >= 2 && b[0] == 0x1f && b[1] == 0x8b {
+		// The content is gzipped. Create a gzip reader.
+		gzReader, err := gzip.NewReader(bytes.NewReader(b))
+		if err != nil {
+			return nil, err
 		}
-		return nil, err
+		return gzReader, nil
 	}
-	return gzReader, nil
+
+	// If it's not gzipped, return a reader for the plain byte slice.
+	// We wrap it in a NopCloser to match the io.ReadCloser return type.
+	return io.NopCloser(bytes.NewReader(b)), nil
 }
 
-func SaveRawResponse(resp *http.Response, path string) error {
-	// Open the file with write access, create if not exists, truncate otherwise
+func Body2Bytes(resp *http.Response) ([]byte, error) {
+	bytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	resp.Body.Close()
+	return bytes, nil
+}
+
+func SaveResponseBody(b []byte, path string) error {
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	// Decode the response body if gzip-encoded
-	decodedReader, err := DecodeReader(resp.Body)
+	decodedReader, err := ReadBytes(b)
 	if err != nil {
 		return err
 	}
 
 	defer decodedReader.Close()
 
-	// Copy the decoded response body to the file
 	_, err = io.Copy(file, decodedReader)
 	if err != nil {
 		return err
