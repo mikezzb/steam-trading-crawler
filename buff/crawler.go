@@ -8,20 +8,24 @@ import (
 	"steam-trading/crawler/errors"
 	"steam-trading/shared"
 	"strconv"
-	"time"
 
+	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 )
 
 type BuffCrawler struct {
-	secret string
+	cookie string
 	client *http.Client
 	parser *BuffParser
 }
 
-func (c *BuffCrawler) Init(secret string) error {
-	c.secret = secret
-	c.client = &http.Client{}
+func (c *BuffCrawler) Init(cookie string) error {
+	c.cookie = cookie
+	client, err := utils.NewClientWithCookie(cookie, []string{BUFF_LISTING_API, BUFF_TRANSACTION_API})
+	if err != nil {
+		return err
+	}
+	c.client = client
 	c.parser = &BuffParser{}
 
 	return nil
@@ -31,11 +35,6 @@ func (c *BuffCrawler) SetHeaders(req *http.Request) {
 	for k, v := range BUFF_HEADERS {
 		req.Header.Set(k, v)
 	}
-	req.Header.Set("Cookie", c.secret)
-
-	fmt.Println(req.URL.String())
-	fmt.Println(req.Method)
-	fmt.Println(req.Header)
 }
 
 func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.Response, error) {
@@ -52,10 +51,9 @@ func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.R
 	if err != nil {
 		return nil, err
 	}
+
 	// set headers
 	c.SetHeaders(req)
-
-	// return nil, errors.ErrItemNotFound
 
 	// do request
 	resp, err := c.client.Do(req)
@@ -66,11 +64,18 @@ func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.R
 	return resp, nil
 }
 
-func (c *BuffCrawler) CrawItemListingPage(itemName string, pageNum int, filters map[string]string) error {
+func (c *BuffCrawler) GetCookies() (string, error) {
+	parsedUrl, _ := url.Parse(BUFF_LISTING_API)
+	cookies := c.client.Jar.Cookies(parsedUrl)
+	shared.PrintCookies(cookies, "Saved Cookies")
+	return utils.StringifyCookies(cookies), nil
+}
+
+func (c *BuffCrawler) CrawItemListingPage(itemName string, pageNum int, filters map[string]string) (*types.ListingsData, error) {
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
 	if !ok {
-		return errors.ErrItemNotFound
+		return nil, errors.ErrItemNotFound
 	}
 
 	params := url.Values{}
@@ -80,8 +85,7 @@ func (c *BuffCrawler) CrawItemListingPage(itemName string, pageNum int, filters 
 	params.Add("sort_by", "price.asc")
 	params.Add("mode", "")
 	params.Add("allow_tradable_cooldown", "1")
-	// timestamp in BJT (ms)
-	// params.Add("_", shared.GetTimestampNow())
+	params.Add("_", shared.GetTimestampNow())
 
 	fmt.Printf("Crawling page %d for %s\n", pageNum, itemName)
 
@@ -92,49 +96,55 @@ func (c *BuffCrawler) CrawItemListingPage(itemName string, pageNum int, filters 
 	resp, err := c.DoReq(BUFF_LISTING_API, params, "GET")
 
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	// save raw response
+	bodyBytes, _ := utils.Body2Bytes(resp)
+
+	saveName := fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow())
+	_ = utils.SaveResponseBody(bodyBytes, path.Join(BUFF_RAW_RES_DIR, saveName))
+
+	// parse response
+	data, err := c.parser.ParseItemListings(itemName, bodyBytes)
 
 	defer resp.Body.Close()
 
-	// save raw response
-	saveName := fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow())
-	_ = utils.SaveRawResponse(resp, path.Join(BUFF_RAW_RES_DIR, saveName))
-
-	// parse response
-	item, listings, err := c.parser.ParseItemListings(itemName, resp)
-
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// save to DB
-
-	fmt.Println(item)
-	fmt.Println(listings)
-
-	return nil
+	return data, nil
 }
 
-func (c *BuffCrawler) CrawlItemListings(itemName string, maxListings int, filters map[string]string) error {
-	// maxPages := maxListings / BUFF_LISTING_ITEMS_PER_PAGE
-	maxPages := 1
+func (c *BuffCrawler) CrawlItemListings(itemName string, config types.CrawlerConfig) error {
+	maxPages := config.MaxItems / BUFF_LISTING_ITEMS_PER_PAGE
+	// maxPages := 1
+	fmt.Printf("Crawling %d pages for %s\n", maxPages, itemName)
 
 	for i := 1; i <= maxPages; i++ {
-		err := c.CrawItemListingPage(itemName, i, filters)
+		data, err := c.CrawItemListingPage(itemName, i, config.Filters)
+		config.OnResult(data)
+
 		if err != nil {
+			if config.OnError != nil {
+				config.OnError(err)
+			}
 			return err
 		}
 
 		if i != maxPages {
-			// sleep for buff sleep time seconds
-			time.Sleep(time.Duration(BUFF_SLEEP_TIME) * time.Second)
+			shared.RandomSleep(BUFF_SLEEP_TIME_MIN, BUFF_SLEEP_TIME_MAX)
 		}
+	}
+
+	if config.OnComplete != nil {
+		config.OnComplete()
 	}
 
 	return nil
 }
 
-func (c *BuffCrawler) CrawlItemTransactions(itemName string) error {
+func (c *BuffCrawler) CrawlItemTransactions(itemName string, config types.CrawlerConfig) error {
 	return nil
 }
