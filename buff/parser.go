@@ -18,15 +18,15 @@ type BuffGoodsInfo struct {
 }
 
 type BuffItemAssetInfoInfo struct {
-	PaintIndex int `json:"paint_index"`
-	PaintSeed  int `json:"paint_seed"`
+	PaintIndex int `json:"paintindex"`
+	PaintSeed  int `json:"paintseed"`
 }
 
 type BuffItemAssetInfo struct {
 	Info             BuffItemAssetInfoInfo `json:"info"`
 	ClassId          string                `json:"classid"`
 	AssetId          string                `json:"assetid"` // for steam preview
-	PaintWear        string                `json:"paint_wear"`
+	PaintWear        string                `json:"paintwear"`
 	TradableCooldown string                `json:"tradable_cooldown_text"`
 }
 
@@ -100,9 +100,16 @@ func (p *BuffParser) formatItem(data BuffListingResponseData, listings []shared.
 }
 
 func (p *BuffParser) ParseItemListings(name string, resp *http.Response) (*shared.Item, []shared.Listing, error) {
+	decodedReader, err := utils.DecodeReader(resp.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer decodedReader.Close()
+
 	// marshal response
 	var data BuffListingResponseData
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+
+	if err := json.NewDecoder(decodedReader).Decode(&data); err != nil {
 		return nil, nil, err
 	}
 
@@ -112,7 +119,8 @@ func (p *BuffParser) ParseItemListings(name string, resp *http.Response) (*share
 	} else if item, err := p.formatItem(data, listings); err != nil {
 		return nil, nil, err
 	} else {
-		return item, utils.PostFormatListing(name, listings), nil
+		formattedListings := utils.PostFormatListing(name, listings)
+		return item, formattedListings, nil
 	}
 }
 

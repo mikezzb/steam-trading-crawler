@@ -7,7 +7,8 @@ const (
 	BUFF_TRANSACTION_API        = "https://buff.163.com/api/market/goods/bill_order"
 	BUFF_CSGO_NAME              = "csgo"
 	BUFF_LISTING_ITEMS_PER_PAGE = 10
-	SLEEP_TIME                  = 10
+	BUFF_SLEEP_TIME             = 10
+	BUFF_RAW_RES_DIR            = "output"
 )
 
 var BUFF_HEADERS = map[string]string{
@@ -16,7 +17,6 @@ var BUFF_HEADERS = map[string]string{
 	"Accept-Language":    "en-HK,en;q=0.9,zh-HK;q=0.8,zh;q=0.7,en-GB;q=0.6,en-US;q=0.5,zh-CN;q=0.4,zh-TW;q=0.3",
 	"Connection":         "keep-alive",
 	"Host":               "buff.163.com",
-	"Referer":            "https://buff.163.com/goods/759401",
 	"Sec-Fetch-Dest":     "empty",
 	"Sec-Fetch-Mode":     "cors",
 	"Sec-Fetch-Site":     "same-origin",
