@@ -2,9 +2,11 @@ package buff
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"steam-trading/shared"
 
+	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 )
 
@@ -99,28 +101,32 @@ func (p *BuffParser) formatItem(data BuffListingResponseData, listings []shared.
 	return &formattedItems, nil
 }
 
-func (p *BuffParser) ParseItemListings(name string, resp *http.Response) (*shared.Item, []shared.Listing, error) {
-	decodedReader, err := utils.DecodeReader(resp.Body)
+func (p *BuffParser) ParseItemListings(name string, bodyBytes []byte) (*types.ListingsData, error) {
+	decodedReader, err := utils.ReadBytes(bodyBytes)
 	if err != nil {
-		return nil, nil, err
+		fmt.Printf("Failed to decode response: %v\n", err)
+		return nil, err
 	}
 	defer decodedReader.Close()
 
-	// marshal response
+	// unmarshal response
 	var data BuffListingResponseData
-
 	if err := json.NewDecoder(decodedReader).Decode(&data); err != nil {
-		return nil, nil, err
+		fmt.Printf("Failed to unmarshal response: %v\n", err)
+		return nil, err
 	}
 
 	// format data
 	if listings, err := p.formatItemListings(data); err != nil {
-		return nil, nil, err
+		return nil, err
 	} else if item, err := p.formatItem(data, listings); err != nil {
-		return nil, nil, err
+		return nil, err
 	} else {
 		formattedListings := utils.PostFormatListing(name, listings)
-		return item, formattedListings, nil
+		return &types.ListingsData{
+			Item:     item,
+			Listings: formattedListings,
+		}, nil
 	}
 }
 
