@@ -26,14 +26,15 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 
 	// Run
 	name := "★ Karambit | Marble Fade (Factory New)"
-	err := buffCrawler.CrawlItemListings(name, types.CrawlerConfig{
-		MaxItems: 20,
+	err := buffCrawler.CrawlItemListings(name, types.Handler{
 		OnResult: func(result interface{}) {
 			t.Logf("Result: %v", result)
 		},
 		OnError: func(err error) {
 			t.Errorf("Error: %v", err)
 		},
+	}, types.CrawlerConfig{
+		MaxItems: 20,
 	})
 	if err != nil {
 		t.Errorf("Failed to crawl item listings: %v", err)
@@ -46,7 +47,7 @@ func TestBuffParser_ParseItemListings(t *testing.T) {
 		mockResJsonPath string
 	}{
 		{"mocks/gzip_encode.json"},
-		{"output/buff_l_★ M9 Bayonet | Fade (Factory New)_1_1712820647114.json"},
+		// {"output/buff_l_★ M9 Bayonet | Fade (Factory New)_1_1712820647114.json"},
 	}
 
 	for _, tc := range testCases {
@@ -66,13 +67,13 @@ func TestBuffParser_ParseItemListings(t *testing.T) {
 		t.Logf("Listings: %v", data.Listings)
 
 		// save item and listings to JSON files
-		// itemJsonPath := "mocks/item.json"
-		// if err := utils.WriteJSONToFile(data.Item, itemJsonPath); err != nil {
-		// 	t.Errorf("Failed to write item JSON to file: %v", err)
-		// }
-		// listingsJsonPath := "mocks/listings.json"
-		// if err := utils.WriteJSONToFile(data.Listings, listingsJsonPath); err != nil {
-		// 	t.Errorf("Failed to write listings JSON to file: %v", err)
-		// }
+		itemJsonPath := "mocks/item.json"
+		if err := utils.WriteJSONToFile(data.Item, itemJsonPath); err != nil {
+			t.Errorf("Failed to write item JSON to file: %v", err)
+		}
+		listingsJsonPath := "mocks/listings.json"
+		if err := utils.WriteJSONToFile(data.Listings, listingsJsonPath); err != nil {
+			t.Errorf("Failed to write listings JSON to file: %v", err)
+		}
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"steam-trading/shared"
+	"steam-trading/shared/database/model"
 
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
@@ -49,8 +50,8 @@ type BuffListingResponseData struct {
 	} `json:"data"`
 }
 
-func itemToListing(item BuffItem) shared.Listing {
-	return shared.Listing{
+func itemToListing(item BuffItem) model.Listing {
+	return model.Listing{
 		Price:            item.Price,
 		CreatedAt:        item.CreatedAt,
 		UpdatedAt:        item.UpdatedAt,
@@ -65,9 +66,9 @@ func itemToListing(item BuffItem) shared.Listing {
 	}
 }
 
-func (p *BuffParser) formatItemListings(data BuffListingResponseData) ([]shared.Listing, error) {
+func (p *BuffParser) formatItemListings(data BuffListingResponseData) ([]model.Listing, error) {
 	items := data.Data.Items
-	listing := make([]shared.Listing, len(items))
+	listing := make([]model.Listing, len(items))
 	for i, item := range items {
 		listing[i] = itemToListing(item)
 	}
@@ -81,7 +82,7 @@ func getFirstValue(data map[string]BuffGoodsInfo) BuffGoodsInfo {
 	return BuffGoodsInfo{}
 }
 
-func ExtractLowestPrice(listing []shared.Listing) string {
+func ExtractLowestPrice(listing []model.Listing) string {
 	lowestPrice := listing[0].Price
 	for _, item := range listing {
 		if item.Price < lowestPrice {
@@ -91,12 +92,14 @@ func ExtractLowestPrice(listing []shared.Listing) string {
 	return lowestPrice
 }
 
-func (p *BuffParser) formatItem(data BuffListingResponseData, listings []shared.Listing) (*shared.Item, error) {
+func (p *BuffParser) formatItem(data BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
 	item := getFirstValue(data.Data.GoodsInfos)
 
-	formattedItems := shared.Item{}
+	formattedItems := model.Item{}
+	formattedItems.IconUrl = item.IconUrl
 	formattedItems.SteamPrice = item.SteamPrice
-	formattedItems.MarketPrice = ExtractLowestPrice(listings)
+	formattedItems.LowestMarketPrice = ExtractLowestPrice(listings)
+	formattedItems.LowestMarketName = shared.MARKET_NAME_BUFF
 
 	return &formattedItems, nil
 }
@@ -130,6 +133,6 @@ func (p *BuffParser) ParseItemListings(name string, bodyBytes []byte) (*types.Li
 	}
 }
 
-func (p *BuffParser) ParseItemTransactions(resp *http.Response) ([]shared.Transaction, error) {
+func (p *BuffParser) ParseItemTransactions(resp *http.Response) ([]model.Transaction, error) {
 	return nil, nil
 }

@@ -21,7 +21,5 @@ func main() {
 	fmt.Printf("Buff Secret: %s\n", os.Getenv("BUFF_SECRET"))
 
 	buffCrawler := &buff.BuffCrawler{}
-	buffCrawler.Init(os.Getenv("BUFF_SECRET"))
-	buffCrawler.CrawlItemListings("★ Karambit | Marble Fade (Factory New)", 10)
 
 }

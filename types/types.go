@@ -1,12 +1,12 @@
 package types
 
-import "steam-trading/shared"
+import "steam-trading/shared/database/model"
 
 type ListingsData struct {
-	Item     *shared.Item
-	Listings []shared.Listing
+	Item     *model.Item
+	Listings []model.Listing
 }
 
 type TransactionData struct {
-	Transactions []shared.Transaction
+	Transactions []model.Transaction
 }
