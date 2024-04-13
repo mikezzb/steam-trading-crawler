@@ -2,11 +2,14 @@ package buff
 
 // test
 import (
+	"os"
+	"testing"
+	"time"
+
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"os"
-	"testing"
+	"github.com/mikezzb/steam-trading-shared/database"
 )
 
 func InitBuffCrawler(t *testing.T, cookie string) *BuffCrawler {
@@ -23,16 +26,17 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 	buffCrawler := InitBuffCrawler(t, secretStore.Get("buff_secret").(string))
 	defer utils.UpdateSecrets(buffCrawler, *secretStore, "buff_secret")
 
+	// db
+	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", 10*time.Second)
+	defer dbClient.Disconnect()
+
+	// handler
+	factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
+	listingsHandler := factory.NewListingsHandler()
+
 	// Run
-	name := "★ Karambit | Marble Fade (Factory New)"
-	err := buffCrawler.CrawlItemListings(name, types.Handler{
-		OnResult: func(result interface{}) {
-			t.Logf("Result: %v", result)
-		},
-		OnError: func(err error) {
-			t.Errorf("Error: %v", err)
-		},
-	}, types.CrawlerConfig{
+	name := "★ Bayonet | Marble Fade (Factory New)"
+	err := buffCrawler.CrawlItemListings(name, listingsHandler, &types.CrawlerConfig{
 		MaxItems: 20,
 	})
 	if err != nil {

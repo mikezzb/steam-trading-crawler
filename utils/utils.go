@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
-	"github.com/mikezzb/steam-trading-crawler/types"
-	shared "github.com/mikezzb/steam-trading-shared"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/mikezzb/steam-trading-crawler/types"
+	shared "github.com/mikezzb/steam-trading-shared"
 
 	"github.com/mikezzb/steam-trading-shared/database/model"
 )

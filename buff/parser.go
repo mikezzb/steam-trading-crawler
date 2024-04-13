@@ -3,10 +3,11 @@ package buff
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"net/http"
 
 	"github.com/mikezzb/steam-trading-shared/database/model"
 )
@@ -92,14 +93,16 @@ func ExtractLowestPrice(listing []model.Listing) string {
 	return lowestPrice
 }
 
-func (p *BuffParser) formatItem(data BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
+func (p *BuffParser) formatItem(name string, data BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
 	item := getFirstValue(data.Data.GoodsInfos)
 
-	formattedItems := model.Item{}
-	formattedItems.IconUrl = item.IconUrl
-	formattedItems.SteamPrice = item.SteamPrice
-	formattedItems.LowestMarketPrice = ExtractLowestPrice(listings)
-	formattedItems.LowestMarketName = shared.MARKET_NAME_BUFF
+	formattedItems := model.Item{
+		Name:              name,
+		IconUrl:           item.IconUrl,
+		SteamPrice:        item.SteamPrice,
+		LowestMarketPrice: ExtractLowestPrice(listings),
+		LowestMarketName:  shared.MARKET_NAME_BUFF,
+	}
 
 	return &formattedItems, nil
 }
@@ -122,7 +125,7 @@ func (p *BuffParser) ParseItemListings(name string, bodyBytes []byte) (*types.Li
 	// format data
 	if listings, err := p.formatItemListings(data); err != nil {
 		return nil, err
-	} else if item, err := p.formatItem(data, listings); err != nil {
+	} else if item, err := p.formatItem(name, data, listings); err != nil {
 		return nil, err
 	} else {
 		formattedListings := utils.PostFormatListing(name, listings)

@@ -7,7 +7,7 @@ type CrawlerConfig struct {
 
 type Crawler interface {
 	Init(secret string) error
-	CrawlItemListings(itemName string, handler Handler, config CrawlerConfig) error
-	CrawlItemTransactions(itemName string, handler Handler, config CrawlerConfig) error
+	CrawlItemListings(itemName string, handler *Handler, config *CrawlerConfig) error
+	CrawlItemTransactions(itemName string, handler *Handler, config *CrawlerConfig) error
 	GetCookies() (string, error)
 }
