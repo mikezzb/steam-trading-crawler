@@ -2,12 +2,11 @@ package buff
 
 // test
 import (
-	"os"
-	"steam-trading/shared"
-	"testing"
-
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
+	shared "github.com/mikezzb/steam-trading-shared"
+	"os"
+	"testing"
 )
 
 func InitBuffCrawler(t *testing.T, cookie string) *BuffCrawler {

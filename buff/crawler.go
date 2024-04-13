@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"steam-trading/crawler/errors"
-	"steam-trading/shared"
 	"strconv"
 
+	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
+	shared "github.com/mikezzb/steam-trading-shared"
 )
 
 type BuffCrawler struct {

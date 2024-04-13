@@ -1,10 +1,9 @@
 package crawler
 
 import (
-	"steam-trading/shared/database"
-	"steam-trading/shared/database/repository"
-
 	"github.com/mikezzb/steam-trading-crawler/types"
+	"github.com/mikezzb/steam-trading-shared/database"
+	"github.com/mikezzb/steam-trading-shared/database/repository"
 )
 
 type HandlerFactory struct {

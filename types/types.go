@@ -1,6 +1,6 @@
 package types
 
-import "steam-trading/shared/database/model"
+import "github.com/mikezzb/steam-trading-shared/database/model"
 
 type ListingsData struct {
 	Item     *model.Item

@@ -3,12 +3,12 @@ package buff
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"steam-trading/shared"
-	"steam-trading/shared/database/model"
-
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
+	shared "github.com/mikezzb/steam-trading-shared"
+	"net/http"
+
+	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 type BuffParser struct {

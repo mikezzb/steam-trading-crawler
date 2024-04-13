@@ -1,11 +1,12 @@
 package crawler_test
 
 import (
-	"steam-trading/shared/database"
 	"testing"
 	"time"
 
 	crawler "github.com/mikezzb/steam-trading-crawler"
+
+	"github.com/mikezzb/steam-trading-shared/database"
 )
 
 func TestHandlerFactory_NewItemHandler(t *testing.T) {

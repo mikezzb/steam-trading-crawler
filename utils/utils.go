@@ -4,15 +4,15 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"github.com/mikezzb/steam-trading-crawler/types"
+	shared "github.com/mikezzb/steam-trading-shared"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
-	"steam-trading/shared"
-	"steam-trading/shared/database/model"
 	"strings"
 
-	"github.com/mikezzb/steam-trading-crawler/types"
+	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 func ParseCookieString(cookieStr string) []*http.Cookie {

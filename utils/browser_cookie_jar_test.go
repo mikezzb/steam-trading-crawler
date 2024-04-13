@@ -2,13 +2,12 @@ package utils_test
 
 import (
 	"fmt"
+	"github.com/mikezzb/steam-trading-crawler/utils"
+	shared "github.com/mikezzb/steam-trading-shared"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"steam-trading/shared"
 	"testing"
-
-	"github.com/mikezzb/steam-trading-crawler/utils"
 )
 
 // const tragetUrl = "https://buff.163.com/api/market/goods/sell_order?game=csgo&goods_id=43018&page_num=1&sort_by=default&mode=&allow_tradable_cooldown=1&_=1712867980716"
