@@ -27,3 +27,18 @@ type BuffItem struct {
 	PreviewUrl string            `json:"img_src"`
 	GoodsId    int               `json:"goods_id"`
 }
+
+type BuffListingResponseData struct {
+	Code string `json:"code"`
+	Data struct {
+		GoodsInfos map[string]BuffGoodsInfo `json:"goods_infos"`
+		Items      []BuffItem               `json:"items"`
+	} `json:"data"`
+}
+
+type BuffTransactionResponseData struct {
+	Code string `json:"code"`
+	Data struct {
+		Items []BuffItem `json:"items"`
+	} `json:"data"`
+}

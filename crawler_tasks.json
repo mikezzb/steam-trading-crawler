@@ -1,0 +1,12 @@
+{
+  "tasks": [
+    {
+      "name": "★ Bayonet | Marble Fade (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "config": {
+        "maxItems": 60
+      }
+    }
+  ]
+}

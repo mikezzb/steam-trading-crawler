@@ -1,6 +1,7 @@
 package buff
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -64,21 +65,36 @@ func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.R
 	return resp, nil
 }
 
-func (c *BuffCrawler) DoReqWithSave(u string, params url.Values, method, savePath string) (*http.Response, []byte, error) {
+func (c *BuffCrawler) DoReqWithSave(u string, params url.Values, method, savePath string, resData interface{}) (*http.Response, error) {
 	resp, err := c.DoReq(u, params, method)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// save raw response
 	bodyBytes, _ := utils.Body2Bytes(resp)
+
+	defer resp.Body.Close()
+
 	err = utils.SaveResponseBody(bodyBytes, savePath)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	return resp, bodyBytes, nil
+	// decode response
+	decodedReader, err := utils.ReadBytes(bodyBytes)
+	if err != nil {
+		return nil, err
+	}
+	defer decodedReader.Close()
+
+	// unmarshal response
+	if err := json.NewDecoder(decodedReader).Decode(&resData); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (c *BuffCrawler) GetCookies() (string, error) {
@@ -105,16 +121,15 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	}
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow()))
-	resp, bodyBytes, err := c.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath)
+	resData := &BuffListingResponseData{}
+	resp, err := c.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath, resData)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// parse response
-	data, err := c.parser.ParseItemListings(itemName, resp, bodyBytes)
-
-	defer resp.Body.Close()
+	data, err := c.parser.ParseItemListings(itemName, resp, resData)
 
 	if err != nil {
 		return nil, err
@@ -167,16 +182,15 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 	}
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_t_%s_%s.json", itemName, shared.GetTimestampNow()))
-	resp, bodyBytes, err := c.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath)
+	resData := &BuffTransactionResponseData{}
+	resp, err := c.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath, resData)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// parse response
-	data, err := c.parser.ParseItemTransactions(itemName, resp, bodyBytes)
-
-	defer resp.Body.Close()
+	data, err := c.parser.ParseItemTransactions(itemName, resp, resData)
 
 	if err != nil {
 		return nil, err

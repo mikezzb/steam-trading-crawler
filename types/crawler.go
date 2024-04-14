@@ -1,8 +1,8 @@
 package types
 
 type CrawlerConfig struct {
-	MaxItems int
-	Filters  map[string]string
+	MaxItems int               `json:"maxItems"`
+	Filters  map[string]string `json:"filters"`
 }
 
 type Crawler interface {

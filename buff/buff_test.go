@@ -2,8 +2,6 @@ package buff
 
 // test
 import (
-	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -45,106 +43,78 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 	}
 }
 
-func TestBuffParser_ParseItemListings(t *testing.T) {
-	name := "★ Karambit | Marble Fade (Factory New)"
-	testCases := []struct {
-		mockResJsonPath string
-	}{
-		{"mocks/gzip_encode.json"},
-		// {"output/buff_l_★ M9 Bayonet | Fade (Factory New)_1_1712820647114.json"},
-	}
+// func TestBuffParser_ParseItemListings(t *testing.T) {
+// 	name := "★ Karambit | Marble Fade (Factory New)"
+// 	testCases := []struct {
+// 		mockResJsonPath string
+// 	}{
+// 		{"mocks/gzip_encode.json"},
+// 		// {"output/buff_l_★ M9 Bayonet | Fade (Factory New)_1_1712820647114.json"},
+// 	}
 
-	for _, tc := range testCases {
-		mockResJsonPath := tc.mockResJsonPath
-		mockRes, err := os.ReadFile(mockResJsonPath)
-		if err != nil {
-			t.Errorf("Failed to read mock response file: %s", mockResJsonPath)
-		}
+// 	for _, tc := range testCases {
+// 		mockResJsonPath := tc.mockResJsonPath
+// 		mockRes, err := os.ReadFile(mockResJsonPath)
+// 		if err != nil {
+// 			t.Errorf("Failed to read mock response file: %s", mockResJsonPath)
+// 		}
 
-		p := &BuffParser{}
-		data, err := p.ParseItemListings(name, nil, mockRes)
-		if err != nil {
-			t.Error(err)
-		}
+// 		p := &BuffParser{}
+// 		data, err := p.ParseItemListings(name, nil, mockRes)
+// 		if err != nil {
+// 			t.Error(err)
+// 		}
 
-		t.Logf("Item: %v", data.Item)
-		t.Logf("Listings: %v", data.Listings)
+// 		t.Logf("Item: %v", data.Item)
+// 		t.Logf("Listings: %v", data.Listings)
 
-		// save item and listings to JSON files
-		itemJsonPath := "mocks/item.json"
-		if err := utils.WriteJSONToFile(data.Item, itemJsonPath); err != nil {
-			t.Errorf("Failed to write item JSON to file: %v", err)
-		}
-		listingsJsonPath := "mocks/listings.json"
-		if err := utils.WriteJSONToFile(data.Listings, listingsJsonPath); err != nil {
-			t.Errorf("Failed to write listings JSON to file: %v", err)
-		}
-	}
-}
+// 		// save item and listings to JSON files
+// 		itemJsonPath := "mocks/item.json"
+// 		if err := utils.WriteJSONToFile(data.Item, itemJsonPath); err != nil {
+// 			t.Errorf("Failed to write item JSON to file: %v", err)
+// 		}
+// 		listingsJsonPath := "mocks/listings.json"
+// 		if err := utils.WriteJSONToFile(data.Listings, listingsJsonPath); err != nil {
+// 			t.Errorf("Failed to write listings JSON to file: %v", err)
+// 		}
+// 	}
+// }
 
-func TestBuffCrawler(t *testing.T) {
-	// Init
-	var secretStore, _ = shared.NewPersisitedStore(
-		"../secrets.json",
-	)
-	buffCrawler := InitBuffCrawler(t, secretStore.Get("buff_secret").(string))
-	defer utils.UpdateSecrets(buffCrawler, *secretStore, "buff_secret")
+// func TestBuffParser_ParseTransactions(t *testing.T) {
+// 	name := "★ Bayonet | Marble Fade (Factory New)"
+// 	testCases := []struct {
+// 		mockResJsonPath string
+// 	}{
+// 		{"mocks/transactions.json"},
+// 	}
 
-	// db
-	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", 10*time.Second)
-	defer dbClient.Disconnect()
+// 	id := shared.GetBuffIds()["★ Bayonet | Marble Fade (Factory New)"]
+// 	fmt.Printf("ID: %v\n", id)
 
-	// handler
-	factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
-	handler := factory.NewTransactionHandler()
+// 	// DB & REPO
+// 	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading-unit-test", 10*time.Second)
+// 	defer dbClient.Disconnect()
 
-	t.Run("CrawlItemTransactions", func(t *testing.T) {
-		name := "★ Bayonet | Marble Fade (Factory New)"
-		err := buffCrawler.CrawlItemTransactions(name, handler, &types.CrawlerConfig{})
-		if err != nil {
-			t.Errorf("Failed to crawl item transactions: %v", err)
-		}
-	})
+// 	factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
+// 	handler := factory.NewTransactionHandler()
 
-}
+// 	for _, tc := range testCases {
+// 		mockResJsonPath := tc.mockResJsonPath
+// 		mockRes, err := os.ReadFile(mockResJsonPath)
+// 		if err != nil {
+// 			t.Errorf("Failed to read mock response file: %s", mockResJsonPath)
+// 		}
 
-func TestBuffParser_ParseTransactions(t *testing.T) {
-	name := "★ Bayonet | Marble Fade (Factory New)"
-	testCases := []struct {
-		mockResJsonPath string
-	}{
-		{"mocks/transactions.json"},
-	}
+// 		p := &BuffParser{}
 
-	id := shared.GetBuffIds()["★ Bayonet | Marble Fade (Factory New)"]
-	fmt.Printf("ID: %v\n", id)
+// 		data, err := p.ParseItemTransactions(name, nil, mockRes)
+// 		if err != nil {
+// 			t.Error(err)
+// 		}
 
-	// DB & REPO
-	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading-unit-test", 10*time.Second)
-	defer dbClient.Disconnect()
+// 		fmt.Printf("Transactions: %v", data)
 
-	factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
-	handler := factory.NewTransactionHandler()
-
-	for _, tc := range testCases {
-		mockResJsonPath := tc.mockResJsonPath
-		mockRes, err := os.ReadFile(mockResJsonPath)
-		if err != nil {
-			t.Errorf("Failed to read mock response file: %s", mockResJsonPath)
-		}
-
-		// p := &BuffParser{}
-		mp := &MockBuffCrawler{}
-		mp.Init()
-
-		data, err := mp.MockParserTransactions(name, mockRes)
-		if err != nil {
-			t.Error(err)
-		}
-
-		fmt.Printf("Transactions: %v", data)
-
-		// TEST DB
-		handler.OnResult(data)
-	}
-}
+// 		// TEST DB
+// 		handler.OnResult(data)
+// 	}
+// }

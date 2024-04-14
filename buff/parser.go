@@ -1,8 +1,6 @@
 package buff
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/mikezzb/steam-trading-crawler/types"
@@ -15,15 +13,7 @@ import (
 type BuffParser struct {
 }
 
-type BuffListingResponseData struct {
-	Code string `json:"code"`
-	Data struct {
-		GoodsInfos map[string]BuffGoodsInfo `json:"goods_infos"`
-		Items      []BuffItem               `json:"items"`
-	} `json:"data"`
-}
-
-func itemToListing(item BuffItem) model.Listing {
+func itemToListing(item *BuffItem) model.Listing {
 	return model.Listing{
 		Price:            item.Price,
 		CreatedAt:        item.CreatedAt,
@@ -39,11 +29,11 @@ func itemToListing(item BuffItem) model.Listing {
 	}
 }
 
-func (p *BuffParser) formatItemListings(data BuffListingResponseData) ([]model.Listing, error) {
+func (p *BuffParser) formatItemListings(data *BuffListingResponseData) ([]model.Listing, error) {
 	items := data.Data.Items
 	listing := make([]model.Listing, len(items))
 	for i, item := range items {
-		listing[i] = itemToListing(item)
+		listing[i] = itemToListing(&item)
 	}
 	return listing, nil
 }
@@ -65,7 +55,7 @@ func ExtractLowestPrice(listing []model.Listing) string {
 	return lowestPrice
 }
 
-func (p *BuffParser) formatItem(name string, data BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
+func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
 	item := getFirstValue(data.Data.GoodsInfos)
 
 	formattedItems := model.Item{
@@ -79,25 +69,11 @@ func (p *BuffParser) formatItem(name string, data BuffListingResponseData, listi
 	return &formattedItems, nil
 }
 
-func (p *BuffParser) ParseItemListings(name string, resp *http.Response, bodyBytes []byte) (*types.ListingsData, error) {
-	decodedReader, err := utils.ReadBytes(bodyBytes)
-	if err != nil {
-		fmt.Printf("Failed to decode response: %v\n", err)
-		return nil, err
-	}
-	defer decodedReader.Close()
-
-	// unmarshal response
-	var data BuffListingResponseData
-	if err := json.NewDecoder(decodedReader).Decode(&data); err != nil {
-		fmt.Printf("Failed to unmarshal response: %v\n", err)
-		return nil, err
-	}
-
+func (p *BuffParser) ParseItemListings(name string, resp *http.Response, resData *BuffListingResponseData) (*types.ListingsData, error) {
 	// format data
-	if listings, err := p.formatItemListings(data); err != nil {
+	if listings, err := p.formatItemListings(resData); err != nil {
 		return nil, err
-	} else if item, err := p.formatItem(name, data, listings); err != nil {
+	} else if item, err := p.formatItem(name, resData, listings); err != nil {
 		return nil, err
 	} else {
 		utils.PostFormatListings(name, listings)
@@ -108,38 +84,17 @@ func (p *BuffParser) ParseItemListings(name string, resp *http.Response, bodyByt
 	}
 }
 
-type BuffTransactionResponseData struct {
-	Code string `json:"code"`
-	Data struct {
-		Items []BuffItem `json:"items"`
-	} `json:"data"`
-}
-
 func (p *BuffParser) formatItemTransactions(data *BuffTransactionResponseData) ([]model.Transaction, error) {
 	items := data.Data.Items
 	transactions := make([]model.Transaction, len(items))
 	for i, item := range items {
-		transactions[i] = model.Transaction(itemToListing(item))
+		transactions[i] = model.Transaction(itemToListing(&item))
 	}
 	return transactions, nil
 }
 
-func (p *BuffParser) ParseItemTransactions(name string, resp *http.Response, bodyBytes []byte) (*types.TransactionData, error) {
-	decodedReader, err := utils.ReadBytes(bodyBytes)
-	if err != nil {
-		fmt.Printf("Failed to decode response: %v\n", err)
-		return nil, err
-	}
-	defer decodedReader.Close()
-
-	// unmarshal response
-	var data BuffTransactionResponseData
-	if err := json.NewDecoder(decodedReader).Decode(&data); err != nil {
-		fmt.Printf("Failed to unmarshal response: %v\n", err)
-		return nil, err
-	}
-
-	if transactions, err := p.formatItemTransactions(&data); err != nil {
+func (p *BuffParser) ParseItemTransactions(name string, resp *http.Response, resData *BuffTransactionResponseData) (*types.TransactionData, error) {
+	if transactions, err := p.formatItemTransactions(resData); err != nil {
 		return nil, err
 	} else {
 		utils.PostFormatTransactions(name, transactions)
