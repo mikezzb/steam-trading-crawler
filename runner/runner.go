@@ -17,13 +17,15 @@ type Runner struct {
 	handlerFactory utils.HandlerFactoryInterface
 	secretStore    *shared.PersisitedStore
 	crawlers       map[string]types.Crawler
+	rerunCounts    map[string]int
+	taskTimers     map[string]*time.Timer
+	maxReruns      int
 }
 
 type RunnerConfig struct {
 	LogFolder      string
 	SecretPath     string
 	HandlerFactory utils.HandlerFactoryInterface
-	RerunInterval  int // in seconds
 	MaxReruns      int
 }
 
@@ -50,6 +52,9 @@ func NewRunner(config *RunnerConfig) (*Runner, error) {
 		secretStore:    secretStore,
 		handlerFactory: config.HandlerFactory,
 		crawlers:       make(map[string]types.Crawler),
+		rerunCounts:    make(map[string]int),
+		taskTimers:     make(map[string]*time.Timer),
+		maxReruns:      config.MaxReruns,
 	}
 
 	return runner, nil
@@ -76,35 +81,101 @@ func (r *Runner) GetCrawler(marketName string) (types.Crawler, error) {
 	}
 }
 
-func (r *Runner) cleanup() {
-	// save secrets
+func (r *Runner) saveSecrets() {
 	for key, crawler := range r.crawlers {
 		marketSecret := utils.GetSecretName(key)
 		utils.UpdateSecrets(crawler, *r.secretStore, marketSecret)
 	}
 }
 
+func (r *Runner) cleanup() {
+	// save secrets
+	r.saveSecrets()
+}
+
 func (r *Runner) Run(tasks []types.CrawlerTask) {
 	log.Printf("[%v] Start running %v tasks: %v", time.Now(), len(tasks), tasks)
 	defer r.cleanup()
 
-	for idx, task := range tasks {
+	// run all tasks once at start
+	for _, task := range tasks {
 		r.RunTask(task)
+	}
 
-		if idx < len(tasks)-1 {
-			shared.RandomSleep(40, 80)
+	// enter loop to rerun tasks until no more reruns
+	tick := time.NewTicker(1 * time.Minute)
+	defer tick.Stop()
+
+	for range tick.C {
+		allDone := true
+		log.Printf("Checking tasks")
+		for _, task := range tasks {
+			if count, ok := r.rerunCounts[task.Name]; ok {
+				log.Printf("Current task %s | run count: %d/%d", task.Name, count, r.maxReruns)
+				if count < r.maxReruns {
+					allDone = false
+					break
+				}
+			}
 		}
+
+		// if all tasks are done, exit
+		if allDone {
+			log.Printf("All tasks are done")
+			return
+		}
+	}
+}
+
+func (r *Runner) OnError(err error) {
+	r.stopTimers()
+}
+
+func (r *Runner) stopTimers() {
+	// stop all timers to prevent reruns
+	for _, timer := range r.taskTimers {
+		timer.Stop()
 	}
 }
 
 // run crawling task
 func (r *Runner) RunTask(task types.CrawlerTask) {
-	for _, market := range task.Markets {
-		// TODO: can run in parallel since market is independent
-		err := r.Crawl(market, task.Name, task.Config)
+	// if not run before, init rerun count
+	if _, ok := r.rerunCounts[task.Name]; !ok {
+		r.rerunCounts[task.Name] = 0
+	}
 
-		if err != nil {
-			log.Printf("Failed to crawl %s: %v", task.Name, err)
+	var execTask = func(task types.CrawlerTask) error {
+		for _, market := range task.Markets {
+			// TODO: can run in parallel since market is independent
+			err := r.Crawl(market, task.Name, task.Config)
+			// Save secrets after each task
+			r.saveSecrets()
+
+			if err != nil {
+				log.Printf("Failed to crawl %s: %v", task.Name, err)
+				r.OnError(err)
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	// attempt to run task and scedule reruns if needed
+	r.rerunCounts[task.Name]++
+	err := execTask(task)
+
+	// if no error, reset rerun count
+	if err == nil {
+		// rerun logics
+		if r.rerunCounts[task.Name] < r.maxReruns {
+			log.Printf("Scheduling rerun %d for task %s", r.rerunCounts[task.Name], task.Name)
+			r.taskTimers[task.Name] = time.AfterFunc(time.Duration(task.RerunInterval)*time.Second, func() {
+				r.RunTask(task)
+			})
+		} else {
+			log.Printf("Failed to run task %s after %d reruns", task.Name, r.maxReruns)
 		}
 	}
 }
@@ -114,19 +185,18 @@ func (r *Runner) Crawl(market string, name string, config types.CrawlerConfig) e
 	if err != nil {
 		return err
 	}
-	// crawl item transactions
-	transactionHandler := r.handlerFactory.GetTransactionHandler()
-
-	err = crawler.CrawlItemTransactions(name, transactionHandler, &config)
-	if err != nil {
-		return err
-	}
-
-	shared.RandomSleep(10, 30)
 
 	// crawl item listings
 	listingHandler := r.handlerFactory.GetListingsHandler()
 	err = crawler.CrawlItemListings(name, listingHandler, &config)
+	if err != nil {
+		return err
+	}
+
+	// crawl item transactions
+	transactionHandler := r.handlerFactory.GetTransactionHandler()
+
+	err = crawler.CrawlItemTransactions(name, transactionHandler, &config)
 	if err != nil {
 		return err
 	}

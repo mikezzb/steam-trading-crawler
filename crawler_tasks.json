@@ -5,7 +5,7 @@
       "markets": ["buff"],
       "rerunInterval": 1800,
       "config": {
-        "maxItems": 50
+        "maxItems": 60
       }
     },
     {
@@ -13,7 +13,15 @@
       "markets": ["buff"],
       "rerunInterval": 1800,
       "config": {
-        "maxItems": 50
+        "maxItems": 60
+      }
+    },
+    {
+      "name": "★ Flip Knife | Marble Fade (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "config": {
+        "maxItems": 60
       }
     }
   ]

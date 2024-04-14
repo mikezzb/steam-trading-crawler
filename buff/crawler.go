@@ -75,15 +75,15 @@ func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.R
 	// set headers
 	c.SetHeaders(req)
 
-	return nil, nil
+	// return nil, nil
 
 	// do request
-	// resp, err := c.client.Do(req)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
-	// return resp, nil
+	return resp, nil
 }
 
 func (c *BuffCrawler) DoReqWithSave(u string, params url.Values, method, savePath string, resData interface{}) (*http.Response, error) {
@@ -153,6 +153,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	data, err := c.parser.ParseItemListings(itemName, resp, resData)
 
 	if err != nil {
+		log.Printf("Err res data %v\n", resData)
 		return nil, err
 	}
 

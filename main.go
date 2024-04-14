@@ -37,6 +37,7 @@ func main() {
 		LogFolder:      "logs",
 		SecretPath:     "secrets.json",
 		HandlerFactory: handlerFactory,
+		MaxReruns:      4,
 	})
 
 	if err != nil {
