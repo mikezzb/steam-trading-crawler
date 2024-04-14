@@ -1,5 +1,7 @@
 package buff
 
+import "time"
+
 // BUFF CONFIGS
 
 const (
@@ -7,9 +9,13 @@ const (
 	BUFF_TRANSACTION_API        = "https://buff.163.com/api/market/goods/bill_order"
 	BUFF_CSGO_NAME              = "csgo"
 	BUFF_LISTING_ITEMS_PER_PAGE = 10
-	BUFF_SLEEP_TIME_MIN         = 10
-	BUFF_SLEEP_TIME_MAX         = 20
-	BUFF_RAW_RES_DIR            = "output"
+
+	BUFF_SLEEP_TIME_MIN_S = 20
+	BUFF_SLEEP_TIME_MAX_S = 40
+
+	BUFF_SLEEP_TIME_MIN = BUFF_SLEEP_TIME_MIN_S * time.Second
+	BUFF_SLEEP_TIME_MAX = BUFF_SLEEP_TIME_MAX_S * time.Second
+	BUFF_RAW_RES_DIR    = "output"
 )
 
 var BUFF_HEADERS = map[string]string{

@@ -14,7 +14,7 @@ func TestHandlerFactory_NewItemHandler(t *testing.T) {
 		dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading-unit-test", time.Second*10)
 		factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
 
-		listingsHandler := factory.NewListingsHandler()
+		listingsHandler := factory.GetListingsHandler()
 		if listingsHandler == nil {
 			t.Error("ListingsHandler is nil")
 		}

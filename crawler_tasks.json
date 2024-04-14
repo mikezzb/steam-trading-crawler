@@ -5,7 +5,15 @@
       "markets": ["buff"],
       "rerunInterval": 1800,
       "config": {
-        "maxItems": 60
+        "maxItems": 50
+      }
+    },
+    {
+      "name": "★ M9 Bayonet | Marble Fade (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "config": {
+        "maxItems": 50
       }
     }
   ]

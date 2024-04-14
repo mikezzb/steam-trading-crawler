@@ -1,7 +1,7 @@
-package crawler_test
+package main_test
 
 import (
-	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -30,7 +30,7 @@ func TestBuff_CrawlTransactions(t *testing.T) {
 
 		// handler
 		factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
-		handler := factory.NewTransactionHandler()
+		handler := factory.GetTransactionHandler()
 
 		t.Run("CrawlItemTransactions", func(t *testing.T) {
 			name := "★ M9 Bayonet | Marble Fade (Factory New)"
@@ -61,6 +61,6 @@ func TestPostProcessors(t *testing.T) {
 			t.Error("Failed to format rarity")
 		}
 
-		fmt.Printf("%+v\n", transactions[0])
+		log.Printf("%+v\n", transactions[0])
 	})
 }

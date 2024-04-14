@@ -2,6 +2,7 @@ package buff
 
 // test
 import (
+	"net/url"
 	"testing"
 	"time"
 
@@ -31,7 +32,7 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 
 	// handler
 	factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
-	listingsHandler := factory.NewListingsHandler()
+	listingsHandler := factory.GetListingsHandler()
 
 	// Run
 	name := "★ Bayonet | Marble Fade (Factory New)"
@@ -89,14 +90,14 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 // 	}
 
 // 	id := shared.GetBuffIds()["★ Bayonet | Marble Fade (Factory New)"]
-// 	fmt.Printf("ID: %v\n", id)
+// 	log.Printf("ID: %v\n", id)
 
 // 	// DB & REPO
 // 	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading-unit-test", 10*time.Second)
 // 	defer dbClient.Disconnect()
 
 // 	factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
-// 	handler := factory.NewTransactionHandler()
+// 	handler := factory.GetTransactionHandler()
 
 // 	for _, tc := range testCases {
 // 		mockResJsonPath := tc.mockResJsonPath
@@ -112,9 +113,18 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 // 			t.Error(err)
 // 		}
 
-// 		fmt.Printf("Transactions: %v", data)
+// 		log.Printf("Transactions: %v", data)
 
 // 		// TEST DB
 // 		handler.OnResult(data)
 // 	}
 // }
+
+func TestBuffSleep(t *testing.T) {
+	t.Run("Sleep", func(t *testing.T) {
+		buffCrawler := &BuffCrawler{}
+
+		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
+		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
+	})
+}

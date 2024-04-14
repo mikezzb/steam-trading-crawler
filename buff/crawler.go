@@ -3,10 +3,12 @@ package buff
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"path"
 	"strconv"
+	"time"
 
 	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
@@ -15,9 +17,10 @@ import (
 )
 
 type BuffCrawler struct {
-	cookie string
-	client *http.Client
-	parser *BuffParser
+	cookie      string
+	client      *http.Client
+	parser      *BuffParser
+	lastReqTime time.Time
 }
 
 func (c *BuffCrawler) Init(cookie string) error {
@@ -38,7 +41,23 @@ func (c *BuffCrawler) SetHeaders(req *http.Request) {
 	}
 }
 
+func (c *BuffCrawler) SleepForSafe() {
+	timeSinceLastReq := time.Since(c.lastReqTime)
+
+	if timeSinceLastReq < BUFF_SLEEP_TIME_MIN {
+		sleepDuration := shared.GetRandomSleepDuration(
+			BUFF_SLEEP_TIME_MIN_S, BUFF_SLEEP_TIME_MAX_S)
+		sleepTime := sleepDuration - timeSinceLastReq
+		log.Printf("Sleeping for %s\n", sleepTime)
+		time.Sleep(sleepTime)
+	}
+
+	c.lastReqTime = time.Now()
+}
+
 func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.Response, error) {
+	c.SleepForSafe()
+
 	// encode params
 	baseUrl, err := url.Parse(u)
 	if err != nil {
@@ -56,13 +75,15 @@ func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.R
 	// set headers
 	c.SetHeaders(req)
 
-	// do request
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
+	return nil, nil
 
-	return resp, nil
+	// do request
+	// resp, err := c.client.Do(req)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return resp, nil
 }
 
 func (c *BuffCrawler) DoReqWithSave(u string, params url.Values, method, savePath string, resData interface{}) (*http.Response, error) {
@@ -114,7 +135,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	params.Add("allow_tradable_cooldown", "1")
 	params.Add("_", shared.GetTimestampNow())
 
-	fmt.Printf("Crawling page %d for %s\n", pageNum, itemName)
+	log.Printf("Crawling page %d for %s\n", pageNum, itemName)
 
 	for k, v := range filters {
 		params.Add(k, v)
@@ -141,7 +162,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 func (c *BuffCrawler) CrawlItemListings(itemName string, handler *types.Handler, config *types.CrawlerConfig) error {
 	maxPages := config.MaxItems / BUFF_LISTING_ITEMS_PER_PAGE
 	// maxPages := 1
-	fmt.Printf("Crawling %d pages for %s\n", maxPages, itemName)
+	log.Printf("Crawling %d pages for %s\n", maxPages, itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
 	if !ok {
@@ -157,10 +178,6 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler *types.Handler,
 				handler.OnError(err)
 			}
 			return err
-		}
-
-		if i != maxPages {
-			shared.RandomSleep(BUFF_SLEEP_TIME_MIN, BUFF_SLEEP_TIME_MAX)
 		}
 	}
 
@@ -200,6 +217,7 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 }
 
 func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler *types.Handler, config *types.CrawlerConfig) error {
+	log.Printf("Crawling transactions for %s\n", itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
 	if !ok {

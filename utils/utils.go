@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -80,7 +80,9 @@ func PostFormatListings(name string, listings []model.Listing) {
 	for i := range listings {
 		// add name to listings
 		listings[i].Name = name
-		listings[i].Rarity = shared.GetTier(name, listings[i].PaintSeed)
+		tier := shared.GetTier(name, listings[i].PaintSeed)
+		log.Printf("%v | %v | PaintSeed: %v | Tier: %v\n", name, listings[i].Price, listings[i].PaintSeed, tier)
+		listings[i].Rarity = tier
 	}
 }
 
@@ -88,7 +90,6 @@ func PostFormatTransactions(name string, transactions []model.Transaction) {
 	for i := range transactions {
 		// add name to transactions
 		transactions[i].Name = name
-		fmt.Printf("Name: %s, PaintSeed: %d, Rarity: %s\n", name, transactions[i].PaintSeed, shared.GetTier(name, transactions[i].PaintSeed))
 		transactions[i].Rarity = shared.GetTier(name, transactions[i].PaintSeed)
 	}
 }
@@ -178,4 +179,8 @@ func DownloadImage(imageURL, path string) error {
 	}
 
 	return nil
+}
+
+func GetSecretName(marketName string) string {
+	return marketName + "_secret"
 }

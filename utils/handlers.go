@@ -6,16 +6,17 @@ import (
 
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-shared/database"
-	"github.com/mikezzb/steam-trading-shared/database/repository"
 )
 
+type HandlerFactoryInterface interface {
+	GetListingsHandler() *types.Handler
+	GetTransactionHandler() *types.Handler
+}
+
 type HandlerFactory struct {
-	dbClient        *database.DBClient
-	config          *HandlerConfig
-	repos           *database.Repositories
-	itemRepo        *repository.ItemRepository
-	listingRepo     *repository.ListingRepository
-	transactionRepo *repository.TransactionRepository
+	dbClient *database.DBClient
+	config   *HandlerConfig
+	repos    *database.Repositories
 }
 
 type HandlerConfig struct {
@@ -33,42 +34,42 @@ func OnComplete() {
 func NewHandlerFactory(dbClient *database.DBClient, config *HandlerConfig) *HandlerFactory {
 	repos := database.NewRepositories(dbClient)
 	return &HandlerFactory{
-		dbClient:        dbClient,
-		config:          config,
-		repos:           repos,
-		itemRepo:        repos.GetItemRepository(),
-		listingRepo:     repos.GetListingRepository(),
-		transactionRepo: repos.GetTransactionRepository(),
+		dbClient: dbClient,
+		config:   config,
+		repos:    repos,
 	}
 }
 
-func (f *HandlerFactory) NewListingsHandler() *types.Handler {
+func (f *HandlerFactory) GetListingsHandler() *types.Handler {
 	return &types.Handler{
 		OnResult: func(result interface{}) {
+			itemRepo := f.repos.GetItemRepository()
+			listingRepo := f.repos.GetListingRepository()
 			data := result.(*types.ListingsData)
 			// handle item
 			item := data.Item
 			if item != nil {
-				f.itemRepo.UpdateItem(item)
+				itemRepo.UpdateItem(item)
 				// save preview url
 				previewPath := fmt.Sprintf("%s/%s.png", f.config.staticOutputDir, item.Name)
 				DownloadImage(item.IconUrl, previewPath)
 			}
 			// handle listings
 			listings := data.Listings
-			f.listingRepo.InsertListings(listings)
+			listingRepo.InsertListings(listings)
 		},
 		OnError:    OnError,
 		OnComplete: OnComplete,
 	}
 }
 
-func (f *HandlerFactory) NewTransactionHandler() *types.Handler {
+func (f *HandlerFactory) GetTransactionHandler() *types.Handler {
 	return &types.Handler{
 		OnResult: func(result interface{}) {
+			transactionRepo := f.repos.GetTransactionRepository()
 			data := result.(*types.TransactionData)
 			transactions := data.Transactions
-			f.transactionRepo.InsertTransactions(transactions)
+			transactionRepo.InsertTransactions(transactions)
 		},
 		OnError:    OnError,
 		OnComplete: OnComplete,
