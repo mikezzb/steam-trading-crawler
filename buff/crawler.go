@@ -64,6 +64,23 @@ func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.R
 	return resp, nil
 }
 
+func (c *BuffCrawler) DoReqWithSave(u string, params url.Values, method, savePath string) (*http.Response, []byte, error) {
+	resp, err := c.DoReq(u, params, method)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// save raw response
+	bodyBytes, _ := utils.Body2Bytes(resp)
+	err = utils.SaveResponseBody(bodyBytes, savePath)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return resp, bodyBytes, nil
+}
+
 func (c *BuffCrawler) GetCookies() (string, error) {
 	parsedUrl, _ := url.Parse(BUFF_LISTING_API)
 	cookies := c.client.Jar.Cookies(parsedUrl)
@@ -71,13 +88,7 @@ func (c *BuffCrawler) GetCookies() (string, error) {
 	return utils.StringifyCookies(cookies), nil
 }
 
-func (c *BuffCrawler) CrawItemListingPage(itemName string, pageNum int, filters map[string]string) (*types.ListingsData, error) {
-	// convert name to buff id
-	buffId, ok := shared.GetBuffIds()[itemName]
-	if !ok {
-		return nil, errors.ErrItemNotFound
-	}
-
+func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int, filters map[string]string) (*types.ListingsData, error) {
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
 	params.Add("goods_id", strconv.Itoa(buffId))
@@ -93,20 +104,15 @@ func (c *BuffCrawler) CrawItemListingPage(itemName string, pageNum int, filters 
 		params.Add(k, v)
 	}
 
-	resp, err := c.DoReq(BUFF_LISTING_API, params, "GET")
+	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow()))
+	resp, bodyBytes, err := c.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// save raw response
-	bodyBytes, _ := utils.Body2Bytes(resp)
-
-	saveName := fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow())
-	_ = utils.SaveResponseBody(bodyBytes, path.Join(BUFF_RAW_RES_DIR, saveName))
-
 	// parse response
-	data, err := c.parser.ParseItemListings(itemName, bodyBytes)
+	data, err := c.parser.ParseItemListings(itemName, resp, bodyBytes)
 
 	defer resp.Body.Close()
 
@@ -121,9 +127,14 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler *types.Handler,
 	maxPages := config.MaxItems / BUFF_LISTING_ITEMS_PER_PAGE
 	// maxPages := 1
 	fmt.Printf("Crawling %d pages for %s\n", maxPages, itemName)
+	// convert name to buff id
+	buffId, ok := shared.GetBuffIds()[itemName]
+	if !ok {
+		return errors.ErrItemNotFound
+	}
 
 	for i := 1; i <= maxPages; i++ {
-		data, err := c.CrawItemListingPage(itemName, i, config.Filters)
+		data, err := c.CrawlItemListingPage(itemName, buffId, i, config.Filters)
 		handler.OnResult(data)
 
 		if err != nil {
@@ -145,6 +156,57 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler *types.Handler,
 	return nil
 }
 
+func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filters map[string]string) (*types.TransactionData, error) {
+	params := url.Values{}
+	params.Add("game", BUFF_CSGO_NAME)
+	params.Add("goods_id", strconv.Itoa(buffId))
+	params.Add("_", shared.GetTimestampNow())
+
+	for k, v := range filters {
+		params.Add(k, v)
+	}
+
+	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_t_%s_%s.json", itemName, shared.GetTimestampNow()))
+	resp, bodyBytes, err := c.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// parse response
+	data, err := c.parser.ParseItemTransactions(itemName, resp, bodyBytes)
+
+	defer resp.Body.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler *types.Handler, config *types.CrawlerConfig) error {
+	// convert name to buff id
+	buffId, ok := shared.GetBuffIds()[itemName]
+	if !ok {
+		return errors.ErrItemNotFound
+	}
+
+	// only one page
+	data, err := c.CrawlItemTransactionPage(itemName, buffId, config.Filters)
+
+	if err != nil {
+		if handler.OnError != nil {
+			handler.OnError(err)
+		}
+		return err
+	}
+
+	handler.OnResult(data)
+
+	if handler.OnComplete != nil {
+		handler.OnComplete()
+	}
+
 	return nil
 }

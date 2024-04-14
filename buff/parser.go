@@ -15,34 +15,6 @@ import (
 type BuffParser struct {
 }
 
-type BuffGoodsInfo struct {
-	AppID      int    `json:"appid"`
-	IconUrl    string `json:"icon_url"`
-	SteamPrice string `json:"steam_price"`
-}
-
-type BuffItemAssetInfoInfo struct {
-	PaintIndex int `json:"paintindex"`
-	PaintSeed  int `json:"paintseed"`
-}
-
-type BuffItemAssetInfo struct {
-	Info             BuffItemAssetInfoInfo `json:"info"`
-	ClassId          string                `json:"classid"`
-	AssetId          string                `json:"assetid"` // for steam preview
-	PaintWear        string                `json:"paintwear"`
-	TradableCooldown string                `json:"tradable_cooldown_text"`
-}
-
-type BuffItem struct {
-	Price      string            `json:"price"`
-	AssetInfo  BuffItemAssetInfo `json:"asset_info"`
-	CreatedAt  int               `json:"created_at"`
-	UpdatedAt  int               `json:"updated_at"`
-	PreviewUrl string            `json:"img_src"`
-	GoodsId    int               `json:"goods_id"`
-}
-
 type BuffListingResponseData struct {
 	Code string `json:"code"`
 	Data struct {
@@ -107,7 +79,7 @@ func (p *BuffParser) formatItem(name string, data BuffListingResponseData, listi
 	return &formattedItems, nil
 }
 
-func (p *BuffParser) ParseItemListings(name string, bodyBytes []byte) (*types.ListingsData, error) {
+func (p *BuffParser) ParseItemListings(name string, resp *http.Response, bodyBytes []byte) (*types.ListingsData, error) {
 	decodedReader, err := utils.ReadBytes(bodyBytes)
 	if err != nil {
 		fmt.Printf("Failed to decode response: %v\n", err)
@@ -128,14 +100,51 @@ func (p *BuffParser) ParseItemListings(name string, bodyBytes []byte) (*types.Li
 	} else if item, err := p.formatItem(name, data, listings); err != nil {
 		return nil, err
 	} else {
-		formattedListings := utils.PostFormatListing(name, listings)
+		utils.PostFormatListings(name, listings)
 		return &types.ListingsData{
 			Item:     item,
-			Listings: formattedListings,
+			Listings: listings,
 		}, nil
 	}
 }
 
-func (p *BuffParser) ParseItemTransactions(resp *http.Response) ([]model.Transaction, error) {
-	return nil, nil
+type BuffTransactionResponseData struct {
+	Code string `json:"code"`
+	Data struct {
+		Items []BuffItem `json:"items"`
+	} `json:"data"`
+}
+
+func (p *BuffParser) formatItemTransactions(data *BuffTransactionResponseData) ([]model.Transaction, error) {
+	items := data.Data.Items
+	transactions := make([]model.Transaction, len(items))
+	for i, item := range items {
+		transactions[i] = model.Transaction(itemToListing(item))
+	}
+	return transactions, nil
+}
+
+func (p *BuffParser) ParseItemTransactions(name string, resp *http.Response, bodyBytes []byte) (*types.TransactionData, error) {
+	decodedReader, err := utils.ReadBytes(bodyBytes)
+	if err != nil {
+		fmt.Printf("Failed to decode response: %v\n", err)
+		return nil, err
+	}
+	defer decodedReader.Close()
+
+	// unmarshal response
+	var data BuffTransactionResponseData
+	if err := json.NewDecoder(decodedReader).Decode(&data); err != nil {
+		fmt.Printf("Failed to unmarshal response: %v\n", err)
+		return nil, err
+	}
+
+	if transactions, err := p.formatItemTransactions(&data); err != nil {
+		return nil, err
+	} else {
+		utils.PostFormatTransactions(name, transactions)
+		return &types.TransactionData{
+			Transactions: transactions,
+		}, nil
+	}
 }

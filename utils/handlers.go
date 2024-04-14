@@ -63,6 +63,18 @@ func (f *HandlerFactory) NewListingsHandler() *types.Handler {
 	}
 }
 
+func (f *HandlerFactory) NewTransactionHandler() *types.Handler {
+	return &types.Handler{
+		OnResult: func(result interface{}) {
+			data := result.(*types.TransactionData)
+			transactions := data.Transactions
+			f.transactionRepo.InsertTransactions(transactions)
+		},
+		OnError:    OnError,
+		OnComplete: OnComplete,
+	}
+}
+
 var DEFAULT_HANDLER_CONFIG = &HandlerConfig{
 	staticOutputDir: "output/static",
 }

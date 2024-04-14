@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -75,13 +76,21 @@ func UpdateSecrets(crawler types.Crawler, store shared.PersisitedStore, label st
 	store.Save()
 }
 
-func PostFormatListing(name string, listings []model.Listing) []model.Listing {
+func PostFormatListings(name string, listings []model.Listing) {
 	for i := range listings {
 		// add name to listings
 		listings[i].Name = name
-		listings[i].Rarity = shared.GetListingTier(listings[i])
+		listings[i].Rarity = shared.GetTier(name, listings[i].PaintSeed)
 	}
-	return listings
+}
+
+func PostFormatTransactions(name string, transactions []model.Transaction) {
+	for i := range transactions {
+		// add name to transactions
+		transactions[i].Name = name
+		fmt.Printf("Name: %s, PaintSeed: %d, Rarity: %s\n", name, transactions[i].PaintSeed, shared.GetTier(name, transactions[i].PaintSeed))
+		transactions[i].Rarity = shared.GetTier(name, transactions[i].PaintSeed)
+	}
 }
 
 // decodes a gzip-encoded reader and returns a decoded reader.

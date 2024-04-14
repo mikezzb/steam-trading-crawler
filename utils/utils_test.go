@@ -1,9 +1,10 @@
 package utils_test
 
 import (
-	"github.com/mikezzb/steam-trading-crawler/utils"
 	"os"
 	"testing"
+
+	"github.com/mikezzb/steam-trading-crawler/utils"
 )
 
 func TestImageDownload(t *testing.T) {
