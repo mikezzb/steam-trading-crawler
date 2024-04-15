@@ -94,7 +94,7 @@ func (r *Runner) cleanup() {
 }
 
 func (r *Runner) Run(tasks []types.CrawlerTask) {
-	log.Printf("[%v] Start running %v tasks: %v", time.Now(), len(tasks), tasks)
+	log.Printf("[START] running %v tasks: %v", len(tasks), tasks)
 	defer r.cleanup()
 
 	// run all tasks once at start
@@ -147,15 +147,15 @@ func (r *Runner) RunTask(task types.CrawlerTask) {
 
 	var execTask = func(task types.CrawlerTask) error {
 		for _, market := range task.Markets {
-			// TODO: can run in parallel since market is independent
-			err := r.Crawl(market, task.Name, task.Config)
-			// Save secrets after each task
-			r.saveSecrets()
-
-			if err != nil {
-				log.Printf("Failed to crawl %s: %v", task.Name, err)
-				r.OnError(err)
-				return err
+			// for each market run crawl tasks
+			for taskName, taskConfig := range task.TaskConfigs {
+				err := r.Crawl(market, task.Name, taskName, taskConfig)
+				r.saveSecrets()
+				if err != nil {
+					log.Printf("Failed to crawl %s: %v", task.Name, err)
+					r.OnError(err)
+					return err
+				}
 			}
 		}
 
@@ -170,8 +170,9 @@ func (r *Runner) RunTask(task types.CrawlerTask) {
 	if err == nil {
 		// rerun logics
 		if r.rerunCounts[task.Name] < r.maxReruns {
-			log.Printf("Scheduling rerun %d for task %s", r.rerunCounts[task.Name], task.Name)
-			r.taskTimers[task.Name] = time.AfterFunc(time.Duration(task.RerunInterval)*time.Second, func() {
+			waitDuration := time.Duration(task.RerunInterval) * time.Second
+			log.Printf("Scheduling rerun %d for task %s in %v", r.rerunCounts[task.Name], task.Name, waitDuration)
+			r.taskTimers[task.Name] = time.AfterFunc(waitDuration, func() {
 				r.RunTask(task)
 			})
 		} else {
@@ -180,25 +181,30 @@ func (r *Runner) RunTask(task types.CrawlerTask) {
 	}
 }
 
-func (r *Runner) Crawl(market string, name string, config types.CrawlerConfig) error {
+func (r *Runner) Crawl(market string, itemName, taskName string, config types.CrawlerConfig) error {
 	crawler, err := r.GetCrawler(market)
 	if err != nil {
 		return err
 	}
 
-	// crawl item listings
-	listingHandler := r.handlerFactory.GetListingsHandler()
-	err = crawler.CrawlItemListings(name, listingHandler, &config)
-	if err != nil {
-		return err
-	}
+	switch taskName {
+	case "listings":
+		// crawl item listings
+		listingHandler := r.handlerFactory.GetListingsHandler()
+		err = crawler.CrawlItemListings(itemName, listingHandler, &config)
+		if err != nil {
+			return err
+		}
+	case "transactions":
+		// crawl item transactions
+		transactionHandler := r.handlerFactory.GetTransactionHandler()
 
-	// crawl item transactions
-	transactionHandler := r.handlerFactory.GetTransactionHandler()
-
-	err = crawler.CrawlItemTransactions(name, transactionHandler, &config)
-	if err != nil {
-		return err
+		err = crawler.CrawlItemTransactions(itemName, transactionHandler, &config)
+		if err != nil {
+			return err
+		}
+	default:
+		return errors.ErrTaskNotFound
 	}
 
 	return nil

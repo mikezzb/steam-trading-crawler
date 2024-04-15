@@ -184,3 +184,14 @@ func DownloadImage(imageURL, path string) error {
 func GetSecretName(marketName string) string {
 	return marketName + "_secret"
 }
+
+func CrawlerRunTask(crawler types.Crawler, itemName, taskName string, handler *types.Handler, config *types.CrawlerConfig) error {
+	switch taskName {
+	case "listings":
+		return crawler.CrawlItemListings(itemName, handler, config)
+	case "transactions":
+		return crawler.CrawlItemTransactions(itemName, handler, config)
+	default:
+		return nil
+	}
+}

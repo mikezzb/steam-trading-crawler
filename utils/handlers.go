@@ -56,7 +56,7 @@ func (f *HandlerFactory) GetListingsHandler() *types.Handler {
 			}
 			// handle listings
 			listings := data.Listings
-			listingRepo.InsertListings(listings)
+			listingRepo.UpsertListingsByAssetID(listings)
 		},
 		OnError:    OnError,
 		OnComplete: OnComplete,
@@ -69,7 +69,7 @@ func (f *HandlerFactory) GetTransactionHandler() *types.Handler {
 			transactionRepo := f.repos.GetTransactionRepository()
 			data := result.(*types.TransactionData)
 			transactions := data.Transactions
-			transactionRepo.InsertTransactions(transactions)
+			transactionRepo.UpsertTransactionsByAssetID(transactions)
 		},
 		OnError:    OnError,
 		OnComplete: OnComplete,

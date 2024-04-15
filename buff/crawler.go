@@ -172,7 +172,12 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler *types.Handler,
 
 	for i := 1; i <= maxPages; i++ {
 		data, err := c.CrawlItemListingPage(itemName, buffId, i, config.Filters)
+
 		handler.OnResult(data)
+
+		if len(data.Listings) < BUFF_LISTING_ITEMS_PER_PAGE {
+			break
+		}
 
 		if err != nil {
 			if handler.OnError != nil {

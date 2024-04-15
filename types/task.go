@@ -1,11 +1,13 @@
 package types
 
 type CrawlerTask struct {
-	Name    string   `json:"name"`
+	// item name
+	Name string `json:"name"`
+	// markets to crawl
 	Markets []string `json:"markets"`
 	// in seconds
-	RerunInterval int           `json:"rerun_interval"`
-	Config        CrawlerConfig `json:"config"`
+	RerunInterval int                      `json:"rerunInterval"`
+	TaskConfigs   map[string]CrawlerConfig `json:"taskConfigs"`
 }
 
 type CrawlerTasks struct {

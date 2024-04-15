@@ -18,6 +18,11 @@ const (
 	BUFF_RAW_RES_DIR    = "output"
 )
 
+const (
+	BUFF_SORTING_CREATED_AT = "created.desc"
+	BUFF_SORTING_PRICE_ASC  = "price.asc"
+)
+
 var BUFF_HEADERS = map[string]string{
 	"Accept":             "application/json, text/javascript, */*; q=0.01",
 	"Accept-Encoding":    "gzip, deflate, br, zstd",
