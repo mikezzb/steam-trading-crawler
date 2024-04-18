@@ -17,6 +17,7 @@ type BuffItemAssetInfo struct {
 	AssetId          string                `json:"assetid"` // for steam preview
 	PaintWear        string                `json:"paintwear"`
 	TradableCooldown string                `json:"tradable_cooldown_text"`
+	InstanceId       string                `json:"instanceid"`
 }
 
 type BuffItem struct {

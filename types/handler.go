@@ -1,7 +1,7 @@
 package types
 
-type Handler struct {
-	OnResult   func(result interface{})
-	OnError    func(err error)
-	OnComplete func()
+type Handler interface {
+	OnResult(result interface{})
+	OnError(err error)
+	OnComplete()
 }
