@@ -6,7 +6,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 60
+          "maxItems": 80
         },
         "transactions": {}
       }
@@ -17,7 +17,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 60
+          "maxItems": 80
         },
         "transactions": {}
       }
@@ -28,7 +28,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 60
+          "maxItems": 80
         },
         "transactions": {}
       }

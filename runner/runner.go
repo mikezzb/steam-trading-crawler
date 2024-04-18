@@ -61,9 +61,8 @@ func (r *Runner) GetCrawler(marketName string) (types.Crawler, error) {
 
 	switch marketName {
 	case "buff":
-		crawler := &buff.BuffCrawler{}
 		buffSecret := r.secretStore.Get(utils.GetSecretName(marketName)).(string)
-		err := crawler.Init(buffSecret)
+		crawler, err := buff.NewCrawler(buffSecret)
 		if err != nil {
 			return nil, err
 		}

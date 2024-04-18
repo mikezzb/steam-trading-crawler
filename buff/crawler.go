@@ -23,16 +23,18 @@ type BuffCrawler struct {
 	lastReqTime time.Time
 }
 
-func (c *BuffCrawler) Init(cookie string) error {
+func NewCrawler(cookie string) (*BuffCrawler, error) {
+	c := &BuffCrawler{}
 	c.cookie = cookie
 	client, err := utils.NewClientWithCookie(cookie, []string{BUFF_LISTING_API, BUFF_TRANSACTION_API})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	c.client = client
 	c.parser = &BuffParser{}
-
-	return nil
+	// init last req time so the first req will do immediately
+	c.lastReqTime = time.Unix(time.Now().Unix()-int64(BUFF_SLEEP_TIME_MAX_S), 0)
+	return c, nil
 }
 
 func (c *BuffCrawler) SetHeaders(req *http.Request) {

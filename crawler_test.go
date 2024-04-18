@@ -12,6 +12,7 @@ import (
 	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database"
 	"github.com/mikezzb/steam-trading-shared/database/model"
+	"github.com/mikezzb/steam-trading-shared/database/repository"
 )
 
 func TestBuff_CrawlTransactions(t *testing.T) {
@@ -22,16 +23,21 @@ func TestBuff_CrawlTransactions(t *testing.T) {
 		var secretStore, _ = shared.NewPersisitedStore(
 			"secrets.json",
 		)
-		buffCrawler := &buff.BuffCrawler{}
-		buffCrawler.Init(secretStore.Get(buffSecretName).(string))
+		buffCrawler, err := buff.NewCrawler(secretStore.Get(buffSecretName).(string))
+		if err != nil {
+			t.Errorf("Failed to init buff crawler: %v", err)
+		}
 		defer utils.UpdateSecrets(buffCrawler, *secretStore, buffSecretName)
 
 		// db
 		dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", 10*time.Second)
 		defer dbClient.Disconnect()
 
+		// repos
+		repos := repository.NewRepoFactory(dbClient, nil)
+
 		// handler
-		factory := handler.NewHandlerFactory(dbClient, handler.DEFAULT_HANDLER_CONFIG)
+		factory := handler.NewHandlerFactory(repos, handler.DEFAULT_HANDLER_CONFIG)
 		handler := factory.GetTransactionHandler()
 
 		t.Run("CrawlItemTransactions", func(t *testing.T) {

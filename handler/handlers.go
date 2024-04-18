@@ -5,7 +5,7 @@ import (
 
 	"github.com/mikezzb/steam-trading-crawler/types"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database"
+	"github.com/mikezzb/steam-trading-shared/database/repository"
 )
 
 type IHandlerFactory interface {
@@ -14,9 +14,8 @@ type IHandlerFactory interface {
 }
 
 type HandlerFactory struct {
-	dbClient *database.DBClient
-	config   *HandlerConfig
-	repos    *database.Repositories
+	config *HandlerConfig
+	repos  repository.RepoFactory
 }
 
 type HandlerConfig struct {
@@ -32,12 +31,10 @@ func OnComplete() {
 	log.Println("Complete")
 }
 
-func NewHandlerFactory(dbClient *database.DBClient, config *HandlerConfig) *HandlerFactory {
-	repos := database.NewRepositories(dbClient)
+func NewHandlerFactory(repos repository.RepoFactory, config *HandlerConfig) *HandlerFactory {
 	return &HandlerFactory{
-		dbClient: dbClient,
-		config:   config,
-		repos:    repos,
+		config: config,
+		repos:  repos,
 	}
 }
 
@@ -61,6 +58,8 @@ func (f *HandlerFactory) GetTransactionHandler() types.Handler {
 	)
 }
 
+var DEFAULT_SECRET_STORE, _ = shared.NewPersisitedStore("../secrets.json")
 var DEFAULT_HANDLER_CONFIG = &HandlerConfig{
 	StaticOutputDir: "output/static",
+	SecretStore:     DEFAULT_SECRET_STORE,
 }

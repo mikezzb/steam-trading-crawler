@@ -1,4 +1,4 @@
-package buff
+package buff_test
 
 // test
 import (
@@ -6,16 +6,20 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mikezzb/steam-trading-crawler/buff"
 	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database"
+	"github.com/mikezzb/steam-trading-shared/database/repository"
 )
 
-func InitBuffCrawler(t *testing.T, cookie string) *BuffCrawler {
-	c := &BuffCrawler{}
-	c.Init(cookie)
+func InitBuffCrawler(t *testing.T, cookie string) *buff.BuffCrawler {
+	c, err := buff.NewCrawler(cookie)
+	if err != nil {
+		t.Errorf("Failed to init buff crawler: %v", err)
+	}
 	return c
 }
 
@@ -32,8 +36,11 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", 10*time.Second)
 	defer dbClient.Disconnect()
 
+	// repos
+	repos := repository.NewRepoFactory(dbClient, nil)
+
 	// handler
-	factory := handler.NewHandlerFactory(dbClient, handler.DEFAULT_HANDLER_CONFIG)
+	factory := handler.NewHandlerFactory(repos, handler.DEFAULT_HANDLER_CONFIG)
 	listingsHandler := factory.GetListingsHandler()
 
 	// Run
@@ -48,9 +55,10 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 
 func TestBuffSleep(t *testing.T) {
 	t.Run("Sleep", func(t *testing.T) {
-		buffCrawler := &BuffCrawler{}
-
+		buffCrawler := InitBuffCrawler(t, "")
+		// no throttle
 		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
+		// throttled
 		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
 	})
 }

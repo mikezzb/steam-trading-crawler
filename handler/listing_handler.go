@@ -6,10 +6,7 @@ import (
 
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
-	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database"
 	"github.com/mikezzb/steam-trading-shared/database/repository"
-	"github.com/mikezzb/steam-trading-shared/subscription"
 )
 
 type ListingHandler struct {
@@ -19,12 +16,9 @@ type ListingHandler struct {
 
 	// chan
 	listingCh chan *types.ListingsData
-
-	// sub emitter
-	subEmitter *subscription.NotificationEmitter
 }
 
-func NewListingHandler(repos *database.Repositories, config *HandlerConfig) *ListingHandler {
+func NewListingHandler(repos repository.RepoFactory, config *HandlerConfig) *ListingHandler {
 
 	handler := &ListingHandler{
 		itemRepo:    repos.GetItemRepository(),
@@ -32,13 +26,6 @@ func NewListingHandler(repos *database.Repositories, config *HandlerConfig) *Lis
 		config:      config,
 
 		listingCh: make(chan *types.ListingsData, 100),
-		subEmitter: subscription.NewNotificationEmitter(
-			repos.GetSubscriptionRepository(),
-			repos.GetItemRepository(),
-			&subscription.NotifierConfig{
-				TelegramToken: config.SecretStore.Get(shared.SECRET_TELEGRAM_TOKEN).(string),
-			},
-		),
 	}
 
 	go handler.onResult()
@@ -63,12 +50,10 @@ func (h *ListingHandler) onResult() {
 		}
 		// handle listings
 		listings := data.Listings
-		updatedListings, err := h.listingRepo.UpsertListingsByAssetID(listings)
+		_, err := h.listingRepo.UpsertListingsByAssetID(listings)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-		// notify subscribers for updated / created listings
-		h.subEmitter.EmitListings(updatedListings)
 	}
 }
 

@@ -11,6 +11,8 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/types"
 	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database"
+	"github.com/mikezzb/steam-trading-shared/database/repository"
+	"github.com/mikezzb/steam-trading-shared/subscription"
 )
 
 func main() {
@@ -26,14 +28,30 @@ func main() {
 	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", time.Second*10)
 	defer dbClient.Disconnect()
 
+	// event emitter
+	emitter := subscription.NewNotificationEmitter(&subscription.NotifierConfig{
+		TelegramToken: secretStore.Get(shared.SECRET_TELEGRAM_TOKEN).(string),
+	})
+
+	// change stream handlers
+	changeStreamHandler := &repository.ChangeStreamHandlers{
+		ListingChangeStreamCallback:      emitter.ListingChangeStreamHandler,
+		SubscriptionChangeStreamCallback: emitter.SubChangeStreamHandler,
+	}
+
+	// repos
+	repos := repository.NewRepoFactory(dbClient, changeStreamHandler)
+
+	// init event emitter
+	emitter.Init(repos)
+
 	// handlers
-	handlerFactory := handler.NewHandlerFactory(dbClient, &handler.HandlerConfig{
+	handlerFactory := handler.NewHandlerFactory(repos, &handler.HandlerConfig{
 		SecretStore:     secretStore,
 		StaticOutputDir: "output/static",
 	})
 
 	// tasks
-
 	fileBytes, err := os.ReadFile("crawler_tasks.json")
 
 	if err != nil {
