@@ -20,8 +20,8 @@ type HandlerFactory struct {
 }
 
 type HandlerConfig struct {
-	staticOutputDir string
-	secretStore     *shared.PersisitedStore
+	StaticOutputDir string
+	SecretStore     *shared.PersisitedStore
 }
 
 func OnError(err error) {
@@ -62,5 +62,5 @@ func (f *HandlerFactory) GetTransactionHandler() types.Handler {
 }
 
 var DEFAULT_HANDLER_CONFIG = &HandlerConfig{
-	staticOutputDir: "output/static",
+	StaticOutputDir: "output/static",
 }

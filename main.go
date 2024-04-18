@@ -9,16 +9,28 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/runner"
 	"github.com/mikezzb/steam-trading-crawler/types"
+	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database"
 )
 
 func main() {
+	// secret store
+	secretStore, err := shared.NewPersisitedStore("secrets.json")
+
+	if err != nil {
+		log.Fatalf("Failed to load secrets: %v", err)
+		return
+	}
+
 	// db
 	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", time.Second*10)
 	defer dbClient.Disconnect()
 
 	// handlers
-	handlerFactory := handler.NewHandlerFactory(dbClient, handler.DEFAULT_HANDLER_CONFIG)
+	handlerFactory := handler.NewHandlerFactory(dbClient, &handler.HandlerConfig{
+		SecretStore:     secretStore,
+		StaticOutputDir: "output/static",
+	})
 
 	// tasks
 
@@ -35,7 +47,7 @@ func main() {
 
 	runner, err := runner.NewRunner(&runner.RunnerConfig{
 		LogFolder:      "logs",
-		SecretPath:     "secrets.json",
+		SecretStore:    secretStore,
 		HandlerFactory: handlerFactory,
 		MaxReruns:      4,
 	})

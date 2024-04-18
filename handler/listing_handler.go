@@ -36,7 +36,7 @@ func NewListingHandler(repos *database.Repositories, config *HandlerConfig) *Lis
 			repos.GetSubscriptionRepository(),
 			repos.GetItemRepository(),
 			&subscription.NotifierConfig{
-				TelegramToken: config.secretStore.Get(shared.SECRET_TELEGRAM_TOKEN).(string),
+				TelegramToken: config.SecretStore.Get(shared.SECRET_TELEGRAM_TOKEN).(string),
 			},
 		),
 	}
@@ -58,12 +58,17 @@ func (h *ListingHandler) onResult() {
 		if item != nil {
 			h.itemRepo.UpdateItem(item)
 			// save preview url
-			previewPath := fmt.Sprintf("%s/%s.png", h.config.staticOutputDir, item.Name)
+			previewPath := fmt.Sprintf("%s/%s.png", h.config.StaticOutputDir, item.Name)
 			utils.DownloadImage(item.IconUrl, previewPath)
 		}
 		// handle listings
 		listings := data.Listings
-		h.listingRepo.UpsertListingsByAssetID(listings)
+		updatedListings, err := h.listingRepo.UpsertListingsByAssetID(listings)
+		if err != nil {
+			log.Printf("Error: %v", err)
+		}
+		// notify subscribers for updated / created listings
+		h.subEmitter.EmitListings(updatedListings)
 	}
 }
 

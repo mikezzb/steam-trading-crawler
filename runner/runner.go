@@ -25,7 +25,7 @@ type Runner struct {
 
 type RunnerConfig struct {
 	LogFolder      string
-	SecretPath     string
+	SecretStore    *shared.PersisitedStore
 	HandlerFactory handler.IHandlerFactory
 	MaxReruns      int
 }
@@ -41,16 +41,8 @@ func NewRunner(config *RunnerConfig) (*Runner, error) {
 		return nil, err
 	}
 
-	// init secret store
-	secretStore, err := shared.NewPersisitedStore(config.SecretPath)
-
-	if err != nil {
-		log.Fatalf("Failed to init secret store: %v", err)
-		return nil, err
-	}
-
 	runner := &Runner{
-		secretStore:    secretStore,
+		secretStore:    config.SecretStore,
 		handlerFactory: config.HandlerFactory,
 		crawlers:       make(map[string]types.Crawler),
 		rerunCounts:    make(map[string]int),
@@ -109,10 +101,8 @@ func (r *Runner) Run(tasks []types.CrawlerTask) {
 
 	for range tick.C {
 		allDone := true
-		log.Printf("Checking tasks")
 		for _, task := range tasks {
 			if count, ok := r.rerunCounts[task.Name]; ok {
-				log.Printf("Current task %s | run count: %d/%d", task.Name, count, r.maxReruns)
 				if count < r.maxReruns {
 					allDone = false
 					break
