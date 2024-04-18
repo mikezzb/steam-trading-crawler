@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/runner"
 	"github.com/mikezzb/steam-trading-crawler/types"
-	"github.com/mikezzb/steam-trading-crawler/utils"
 	"github.com/mikezzb/steam-trading-shared/database"
 )
 
@@ -18,7 +18,7 @@ func main() {
 	defer dbClient.Disconnect()
 
 	// handlers
-	handlerFactory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
+	handlerFactory := handler.NewHandlerFactory(dbClient, handler.DEFAULT_HANDLER_CONFIG)
 
 	// tasks
 

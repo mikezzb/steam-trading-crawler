@@ -160,7 +160,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	return data, nil
 }
 
-func (c *BuffCrawler) CrawlItemListings(itemName string, handler *types.Handler, config *types.CrawlerConfig) error {
+func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
 	maxPages := config.MaxItems / BUFF_LISTING_ITEMS_PER_PAGE
 	// maxPages := 1
 	log.Printf("Crawling %d pages for %s\n", maxPages, itemName)
@@ -180,16 +180,12 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler *types.Handler,
 		}
 
 		if err != nil {
-			if handler.OnError != nil {
-				handler.OnError(err)
-			}
+			handler.OnError(err)
 			return err
 		}
 	}
 
-	if handler.OnComplete != nil {
-		handler.OnComplete()
-	}
+	handler.OnComplete()
 
 	return nil
 }
@@ -222,7 +218,7 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 	return data, nil
 }
 
-func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler *types.Handler, config *types.CrawlerConfig) error {
+func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
 	log.Printf("Crawling transactions for %s\n", itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
@@ -234,17 +230,13 @@ func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler *types.Hand
 	data, err := c.CrawlItemTransactionPage(itemName, buffId, config.Filters)
 
 	if err != nil {
-		if handler.OnError != nil {
-			handler.OnError(err)
-		}
+		handler.OnError(err)
 		return err
 	}
 
 	handler.OnResult(data)
 
-	if handler.OnComplete != nil {
-		handler.OnComplete()
-	}
+	handler.OnComplete()
 
 	return nil
 }

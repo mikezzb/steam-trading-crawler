@@ -13,6 +13,7 @@ import (
 type BuffParser struct {
 }
 
+// Shared by listing and transaction
 func itemToListing(item *BuffItem) model.Listing {
 	return model.Listing{
 		Price:            item.Price,
@@ -26,6 +27,8 @@ func itemToListing(item *BuffItem) model.Listing {
 		PaintWear:        item.AssetInfo.PaintWear,
 		PaintIndex:       item.AssetInfo.Info.PaintIndex,
 		PaintSeed:        item.AssetInfo.Info.PaintSeed,
+		InstanceId:       item.AssetInfo.InstanceId,
+		Market:           shared.MARKET_NAME_BUFF,
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/mikezzb/steam-trading-crawler/buff"
+	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
@@ -14,6 +15,7 @@ import (
 )
 
 func TestBuff_CrawlTransactions(t *testing.T) {
+	buffSecretName := utils.GetSecretName(shared.MARKET_NAME_BUFF)
 	t.Run("CrawlTransactions", func(t *testing.T) {
 
 		// Init
@@ -21,15 +23,15 @@ func TestBuff_CrawlTransactions(t *testing.T) {
 			"secrets.json",
 		)
 		buffCrawler := &buff.BuffCrawler{}
-		buffCrawler.Init(secretStore.Get("buff_secret").(string))
-		defer utils.UpdateSecrets(buffCrawler, *secretStore, "buff_secret")
+		buffCrawler.Init(secretStore.Get(buffSecretName).(string))
+		defer utils.UpdateSecrets(buffCrawler, *secretStore, buffSecretName)
 
 		// db
 		dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", 10*time.Second)
 		defer dbClient.Disconnect()
 
 		// handler
-		factory := utils.NewHandlerFactory(dbClient, utils.DEFAULT_HANDLER_CONFIG)
+		factory := handler.NewHandlerFactory(dbClient, handler.DEFAULT_HANDLER_CONFIG)
 		handler := factory.GetTransactionHandler()
 
 		t.Run("CrawlItemTransactions", func(t *testing.T) {

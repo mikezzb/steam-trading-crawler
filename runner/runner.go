@@ -8,13 +8,14 @@ import (
 
 	"github.com/mikezzb/steam-trading-crawler/buff"
 	"github.com/mikezzb/steam-trading-crawler/errors"
+	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
 )
 
 type Runner struct {
-	handlerFactory utils.HandlerFactoryInterface
+	handlerFactory handler.IHandlerFactory
 	secretStore    *shared.PersisitedStore
 	crawlers       map[string]types.Crawler
 	rerunCounts    map[string]int
@@ -25,7 +26,7 @@ type Runner struct {
 type RunnerConfig struct {
 	LogFolder      string
 	SecretPath     string
-	HandlerFactory utils.HandlerFactoryInterface
+	HandlerFactory handler.IHandlerFactory
 	MaxReruns      int
 }
 

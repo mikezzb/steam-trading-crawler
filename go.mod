@@ -7,6 +7,7 @@ replace github.com/mikezzb/steam-trading-shared => /Users/mikezhou/go/src/steam-
 require github.com/mikezzb/steam-trading-shared v0.0.0-00010101000000-000000000000
 
 require (
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect

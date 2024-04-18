@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/mikezzb/steam-trading-crawler/types"
+	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database"
 )
 
@@ -20,6 +21,7 @@ type HandlerFactory struct {
 
 type HandlerConfig struct {
 	staticOutputDir string
+	secretStore     *shared.PersisitedStore
 }
 
 func OnError(err error) {
@@ -41,8 +43,7 @@ func NewHandlerFactory(dbClient *database.DBClient, config *HandlerConfig) *Hand
 
 func (f *HandlerFactory) GetListingsHandler() types.Handler {
 	return NewListingHandler(
-		f.repos.GetItemRepository(),
-		f.repos.GetListingRepository(),
+		f.repos,
 		f.config,
 	)
 }
