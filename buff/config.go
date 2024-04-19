@@ -8,7 +8,7 @@ const (
 	BUFF_LISTING_API            = "https://buff.163.com/api/market/goods/sell_order"
 	BUFF_TRANSACTION_API        = "https://buff.163.com/api/market/goods/bill_order"
 	BUFF_CSGO_NAME              = "csgo"
-	BUFF_LISTING_ITEMS_PER_PAGE = 10
+	BUFF_LISTING_ITEMS_PER_PAGE = 20
 
 	BUFF_SLEEP_TIME_MIN_S = 20
 	BUFF_SLEEP_TIME_MAX_S = 40

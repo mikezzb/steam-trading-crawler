@@ -14,6 +14,7 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
+	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 type BuffCrawler struct {
@@ -127,11 +128,12 @@ func (c *BuffCrawler) GetCookies() (string, error) {
 	return utils.StringifyCookies(cookies), nil
 }
 
-func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int, filters map[string]string) (*types.ListingsData, error) {
+func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int, filters map[string]string) (*types.ListingsData, *Control, error) {
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
 	params.Add("goods_id", strconv.Itoa(buffId))
 	params.Add("page_num", strconv.Itoa(pageNum))
+	params.Add("page_size", strconv.Itoa(BUFF_LISTING_ITEMS_PER_PAGE))
 	params.Add("sort_by", "price.asc")
 	params.Add("mode", "")
 	params.Add("allow_tradable_cooldown", "1")
@@ -148,7 +150,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	resp, err := c.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath, resData)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// parse response
@@ -156,15 +158,16 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 
 	if err != nil {
 		log.Printf("Err res data %v\n", resData)
-		return nil, err
+		return nil, nil, err
 	}
 
-	return data, nil
+	return data, c.parser.ParseListingControl(resData), nil
 }
 
 func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
-	maxPages := config.MaxItems / BUFF_LISTING_ITEMS_PER_PAGE
-	// maxPages := 1
+	var updatedItem *model.Item
+	// round up
+	maxPages := (config.MaxItems + BUFF_LISTING_ITEMS_PER_PAGE - 1) / BUFF_LISTING_ITEMS_PER_PAGE
 	log.Printf("Crawling %d pages for %s\n", maxPages, itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
@@ -173,26 +176,45 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 	}
 
 	for i := 1; i <= maxPages; i++ {
-		data, err := c.CrawlItemListingPage(itemName, buffId, i, config.Filters)
-
-		handler.OnResult(data)
-
-		if len(data.Listings) < BUFF_LISTING_ITEMS_PER_PAGE {
-			break
-		}
+		data, control, err := c.CrawlItemListingPage(itemName, buffId, i, config.Filters)
 
 		if err != nil {
 			handler.OnError(err)
 			return err
 		}
+
+		handler.OnResult(data)
+
+		// merge item data
+		if updatedItem == nil {
+			updatedItem = data.Item
+		} else {
+			// update the price
+			if data.Item.LowestMarketName < updatedItem.LowestMarketPrice {
+				updatedItem.LowestMarketPrice = data.Item.LowestMarketPrice
+			}
+		}
+
+		// handle control
+		if control != nil {
+			if i >= control.TotalPages {
+				break
+			}
+		}
+
 	}
 
-	handler.OnComplete()
+	// only update the item after all pages are crawled
+	handler.OnComplete(
+		&types.ListingsData{
+			Item: updatedItem,
+		},
+	)
 
 	return nil
 }
 
-func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filters map[string]string) (*types.TransactionData, error) {
+func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filters map[string]string) (*types.TransactionData, *Control, error) {
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
 	params.Add("goods_id", strconv.Itoa(buffId))
@@ -207,17 +229,17 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 	resp, err := c.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath, resData)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// parse response
 	data, err := c.parser.ParseItemTransactions(itemName, resp, resData)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return data, nil
+	return data, c.parser.ParseTransactionControl(resData), nil
 }
 
 func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
@@ -229,7 +251,7 @@ func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.Handl
 	}
 
 	// only one page
-	data, err := c.CrawlItemTransactionPage(itemName, buffId, config.Filters)
+	data, _, err := c.CrawlItemTransactionPage(itemName, buffId, config.Filters)
 
 	if err != nil {
 		handler.OnError(err)
@@ -238,7 +260,7 @@ func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.Handl
 
 	handler.OnResult(data)
 
-	handler.OnComplete()
+	handler.OnComplete(nil)
 
 	return nil
 }

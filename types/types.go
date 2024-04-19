@@ -7,6 +7,10 @@ type ListingsData struct {
 	Listings []model.Listing
 }
 
+type ItemData struct {
+	Item *model.Item
+}
+
 type TransactionData struct {
 	Transactions []model.Transaction
 }

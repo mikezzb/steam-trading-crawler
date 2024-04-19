@@ -16,6 +16,7 @@ type ListingHandler struct {
 
 	// chan
 	listingCh chan *types.ListingsData
+	itemCh    chan *types.ItemData
 }
 
 func NewListingHandler(repos repository.RepoFactory, config *HandlerConfig) *ListingHandler {
@@ -28,7 +29,8 @@ func NewListingHandler(repos repository.RepoFactory, config *HandlerConfig) *Lis
 		listingCh: make(chan *types.ListingsData, 100),
 	}
 
-	go handler.onResult()
+	go handler.onListingResult()
+	go handler.OnItemResult()
 
 	return handler
 }
@@ -38,21 +40,24 @@ func (h *ListingHandler) Close() {
 }
 
 // Remove the unused method processUpdatedListing()
-func (h *ListingHandler) onResult() {
+func (h *ListingHandler) onListingResult() {
 	for data := range h.listingCh {
-		// handle item
+		listings := data.Listings
+		_, err := h.listingRepo.UpsertListingsByAssetID(listings)
+		if err != nil {
+			log.Printf("Error: %v", err)
+		}
+	}
+}
+
+func (h *ListingHandler) OnItemResult() {
+	for data := range h.itemCh {
 		item := data.Item
 		if item != nil {
 			h.itemRepo.UpdateItem(item)
 			// save preview url
 			previewPath := fmt.Sprintf("%s/%s.png", h.config.StaticOutputDir, item.Name)
 			utils.DownloadImage(item.IconUrl, previewPath)
-		}
-		// handle listings
-		listings := data.Listings
-		_, err := h.listingRepo.UpsertListingsByAssetID(listings)
-		if err != nil {
-			log.Printf("Error: %v", err)
 		}
 	}
 }
@@ -66,5 +71,8 @@ func (h *ListingHandler) OnError(err error) {
 	log.Printf("Error: %v", err)
 }
 
-func (h *ListingHandler) OnComplete() {
+func (h *ListingHandler) OnComplete(result interface{}) {
+	// for the listing handler, the on complete will returns the updated items
+	data := result.(*types.ItemData)
+	h.itemCh <- data
 }

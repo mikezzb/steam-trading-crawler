@@ -106,3 +106,15 @@ func (p *BuffParser) ParseItemTransactions(name string, resp *http.Response, res
 		}, nil
 	}
 }
+
+func (p *BuffParser) ParseListingControl(resData *BuffListingResponseData) *Control {
+	return &Control{
+		TotalPages: resData.Data.TotalPages,
+	}
+}
+
+func (p *BuffParser) ParseTransactionControl(resData *BuffTransactionResponseData) *Control {
+	return &Control{
+		TotalPages: resData.Data.TotalPages,
+	}
+}

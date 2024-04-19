@@ -27,7 +27,7 @@ func OnError(err error) {
 	log.Printf("Error: %v", err)
 }
 
-func OnComplete() {
+func OnComplete(result interface{}) {
 	log.Println("Complete")
 }
 

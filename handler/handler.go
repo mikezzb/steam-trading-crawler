@@ -3,7 +3,7 @@ package handler
 type BaseHandler struct {
 	onResult   func(result interface{})
 	onError    func(err error)
-	onComplete func()
+	onComplete func(result interface{})
 }
 
 func (b *BaseHandler) OnResult(result interface{}) {
@@ -14,11 +14,11 @@ func (b *BaseHandler) OnError(err error) {
 	b.onError(err)
 }
 
-func (b *BaseHandler) OnComplete() {
-	b.onComplete()
+func (b *BaseHandler) OnComplete(result interface{}) {
+	b.onComplete(result)
 }
 
-func NewBaseHandler(onResult func(result interface{}), onError func(err error), onComplete func()) *BaseHandler {
+func NewBaseHandler(onResult func(result interface{}), onError func(err error), onComplete func(result interface{})) *BaseHandler {
 	return &BaseHandler{
 		onResult:   onResult,
 		onError:    onError,

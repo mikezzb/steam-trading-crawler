@@ -34,12 +34,14 @@ type BuffListingResponseData struct {
 	Data struct {
 		GoodsInfos map[string]BuffGoodsInfo `json:"goods_infos"`
 		Items      []BuffItem               `json:"items"`
+		TotalPages int                      `json:"total_page"`
 	} `json:"data"`
 }
 
 type BuffTransactionResponseData struct {
 	Code string `json:"code"`
 	Data struct {
-		Items []BuffItem `json:"items"`
+		Items      []BuffItem `json:"items"`
+		TotalPages int        `json:"total_page"`
 	} `json:"data"`
 }
