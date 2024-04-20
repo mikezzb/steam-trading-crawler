@@ -20,7 +20,7 @@ type HandlerFactory struct {
 
 type HandlerConfig struct {
 	StaticOutputDir string
-	SecretStore     *shared.PersisitedStore
+	SecretStore     *shared.JsonKvStore
 }
 
 func OnError(err error) {
@@ -58,7 +58,7 @@ func (f *HandlerFactory) GetTransactionHandler() types.Handler {
 	)
 }
 
-var DEFAULT_SECRET_STORE, _ = shared.NewPersisitedStore("../secrets.json")
+var DEFAULT_SECRET_STORE, _ = shared.NewJsonKvStore("../secrets.json")
 var DEFAULT_HANDLER_CONFIG = &HandlerConfig{
 	StaticOutputDir: "output/static",
 	SecretStore:     DEFAULT_SECRET_STORE,

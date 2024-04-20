@@ -20,7 +20,7 @@ func TestBuff_CrawlTransactions(t *testing.T) {
 	t.Run("CrawlTransactions", func(t *testing.T) {
 
 		// Init
-		var secretStore, _ = shared.NewPersisitedStore(
+		var secretStore, _ = shared.NewJsonKvStore(
 			"secrets.json",
 		)
 		buffCrawler, err := buff.NewCrawler(secretStore.Get(buffSecretName).(string))

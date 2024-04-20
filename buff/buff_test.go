@@ -26,7 +26,7 @@ func InitBuffCrawler(t *testing.T, cookie string) *buff.BuffCrawler {
 
 func TestBuffCrawler_CrawlListings(t *testing.T) {
 	// Init
-	var secretStore, _ = shared.NewPersisitedStore(
+	var secretStore, _ = shared.NewJsonKvStore(
 		"../secrets.json",
 	)
 	buffSecretName := utils.GetSecretName(shared.MARKET_NAME_BUFF)

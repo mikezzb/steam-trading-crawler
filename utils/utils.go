@@ -67,7 +67,7 @@ func StringifyCookies(cookies []*http.Cookie) string {
 	return cookieStr
 }
 
-func UpdateSecrets(crawler types.Crawler, store *shared.PersisitedStore, label string) {
+func UpdateSecrets(crawler types.Crawler, store *shared.JsonKvStore, label string) {
 	cookieStr, err := crawler.GetCookies()
 	if err != nil {
 		return

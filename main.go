@@ -17,7 +17,7 @@ import (
 
 func main() {
 	// secret store
-	secretStore, err := shared.NewPersisitedStore("secrets.json")
+	secretStore, err := shared.NewJsonKvStore("secrets.json")
 
 	if err != nil {
 		log.Fatalf("Failed to load secrets: %v", err)

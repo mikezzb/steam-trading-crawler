@@ -17,8 +17,8 @@ import (
 
 type Runner struct {
 	handlerFactory   handler.IHandlerFactory
-	secretStore      *shared.PersisitedStore
-	taskHistoryStore *shared.PersisitedStore
+	secretStore      *shared.JsonKvStore
+	taskHistoryStore *shared.JsonKvStore
 	crawlers         map[string]types.Crawler
 	rerunCounts      map[string]int
 	taskTimers       map[string]*time.Timer
@@ -27,8 +27,8 @@ type Runner struct {
 
 type RunnerConfig struct {
 	LogFolder        string
-	SecretStore      *shared.PersisitedStore
-	TaskHistoryStore *shared.PersisitedStore
+	SecretStore      *shared.JsonKvStore
+	TaskHistoryStore *shared.JsonKvStore
 	HandlerFactory   handler.IHandlerFactory
 	MaxReruns        int
 	TaskHistoryPath  string
@@ -50,11 +50,11 @@ func NewRunner(config *RunnerConfig) (*Runner, error) {
 	}
 
 	// run history store
-	var taskHistoryStore *shared.PersisitedStore
+	var taskHistoryStore *shared.JsonKvStore
 	if config.TaskHistoryStore != nil {
-		taskHistoryStore, _ = shared.NewPersisitedStore(config.TaskHistoryPath)
+		taskHistoryStore, _ = shared.NewJsonKvStore(config.TaskHistoryPath)
 	} else {
-		taskHistoryStore, _ = shared.NewPersisitedStore(DEFAULT_TASK_HISTORY_PATH)
+		taskHistoryStore, _ = shared.NewJsonKvStore(DEFAULT_TASK_HISTORY_PATH)
 	}
 
 	runner := &Runner{

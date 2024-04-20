@@ -34,7 +34,7 @@ func TestBrowserCookieJar(t *testing.T) {
 		log.Printf("Parsed URL: %v\n", parsedUrl.Host)
 
 		// init default cookie
-		keyStore, _ := shared.NewPersisitedStore("../secrets.json")
+		keyStore, _ := shared.NewJsonKvStore("../secrets.json")
 		buffSecretName := utils.GetSecretName(shared.MARKET_NAME_BUFF)
 		client, _ := utils.NewClientWithCookie(keyStore.Get(buffSecretName).(string), []string{parsedUrl.String()})
 		oldCookies := client.Jar.Cookies(parsedUrl)
