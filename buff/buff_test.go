@@ -31,7 +31,7 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 	)
 	buffSecretName := utils.GetSecretName(shared.MARKET_NAME_BUFF)
 	buffCrawler := InitBuffCrawler(t, secretStore.Get(buffSecretName).(string))
-	defer utils.UpdateSecrets(buffCrawler, *secretStore, buffSecretName)
+	defer utils.UpdateSecrets(buffCrawler, secretStore, buffSecretName)
 
 	// db
 	dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", 10*time.Second)

@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -15,20 +16,27 @@ import (
 )
 
 type Runner struct {
-	handlerFactory handler.IHandlerFactory
-	secretStore    *shared.PersisitedStore
-	crawlers       map[string]types.Crawler
-	rerunCounts    map[string]int
-	taskTimers     map[string]*time.Timer
-	maxReruns      int
+	handlerFactory   handler.IHandlerFactory
+	secretStore      *shared.PersisitedStore
+	taskHistoryStore *shared.PersisitedStore
+	crawlers         map[string]types.Crawler
+	rerunCounts      map[string]int
+	taskTimers       map[string]*time.Timer
+	maxReruns        int
 }
 
 type RunnerConfig struct {
-	LogFolder      string
-	SecretStore    *shared.PersisitedStore
-	HandlerFactory handler.IHandlerFactory
-	MaxReruns      int
+	LogFolder        string
+	SecretStore      *shared.PersisitedStore
+	TaskHistoryStore *shared.PersisitedStore
+	HandlerFactory   handler.IHandlerFactory
+	MaxReruns        int
+	TaskHistoryPath  string
 }
+
+const (
+	DEFAULT_TASK_HISTORY_PATH = "logs/taskHistory.json"
+)
 
 func NewRunner(config *RunnerConfig) (*Runner, error) {
 	// init log
@@ -41,13 +49,22 @@ func NewRunner(config *RunnerConfig) (*Runner, error) {
 		return nil, err
 	}
 
+	// run history store
+	var taskHistoryStore *shared.PersisitedStore
+	if config.TaskHistoryStore != nil {
+		taskHistoryStore, _ = shared.NewPersisitedStore(config.TaskHistoryPath)
+	} else {
+		taskHistoryStore, _ = shared.NewPersisitedStore(DEFAULT_TASK_HISTORY_PATH)
+	}
+
 	runner := &Runner{
-		secretStore:    config.SecretStore,
-		handlerFactory: config.HandlerFactory,
-		crawlers:       make(map[string]types.Crawler),
-		rerunCounts:    make(map[string]int),
-		taskTimers:     make(map[string]*time.Timer),
-		maxReruns:      config.MaxReruns,
+		secretStore:      config.SecretStore,
+		handlerFactory:   config.HandlerFactory,
+		crawlers:         make(map[string]types.Crawler),
+		rerunCounts:      make(map[string]int),
+		taskTimers:       make(map[string]*time.Timer),
+		maxReruns:        config.MaxReruns,
+		taskHistoryStore: taskHistoryStore,
 	}
 
 	return runner, nil
@@ -76,7 +93,7 @@ func (r *Runner) GetCrawler(marketName string) (types.Crawler, error) {
 func (r *Runner) saveSecrets() {
 	for key, crawler := range r.crawlers {
 		marketSecret := utils.GetSecretName(key)
-		utils.UpdateSecrets(crawler, *r.secretStore, marketSecret)
+		utils.UpdateSecrets(crawler, r.secretStore, marketSecret)
 	}
 }
 
@@ -128,6 +145,10 @@ func (r *Runner) stopTimers() {
 	}
 }
 
+func getTaskId(name, market string) string {
+	return fmt.Sprintf("%s_%s", name, market)
+}
+
 // run crawling task
 func (r *Runner) RunTask(task types.CrawlerTask) {
 	// if not run before, init rerun count
@@ -136,38 +157,54 @@ func (r *Runner) RunTask(task types.CrawlerTask) {
 	}
 
 	var execTask = func(task types.CrawlerTask) error {
+		var err error = nil
+
 		for _, market := range task.Markets {
-			// for each market run crawl tasks
-			for taskName, taskConfig := range task.TaskConfigs {
-				err := r.Crawl(market, task.Name, taskName, taskConfig)
-				r.saveSecrets()
-				if err != nil {
-					log.Printf("Failed to crawl %s: %v", task.Name, err)
-					r.OnError(err)
-					return err
+			// check if last task run within the rerun interval
+			taskId := getTaskId(task.Name, market)
+			if r.taskHistoryStore.Get(taskId) != nil {
+				lastRunTime := r.taskHistoryStore.Get(taskId).(int64)
+				now := shared.GetUnixNow()
+				if now-lastRunTime < task.RerunInterval {
+					log.Printf("Task %s already run within %d seconds, skipping", task.Name, task.RerunInterval)
+					continue // skip this task
 				}
 			}
+
+			// for each market run crawl tasks
+			for taskName, taskConfig := range task.TaskConfigs {
+				err = r.Crawl(market, task.Name, taskName, taskConfig)
+				r.saveSecrets()
+				if err != nil {
+					log.Printf("[%s] Failed to crawl %s for task %s: %v", market, taskName, task.Name, err)
+					break // stop running tasks for this market
+				}
+			}
+
+			// update task history
+			r.taskHistoryStore.Set(taskId, shared.GetUnixNow())
 		}
 
-		return nil
+		return err
 	}
 
 	// attempt to run task and scedule reruns if needed
 	r.rerunCounts[task.Name]++
 	err := execTask(task)
 
-	// if no error, reset rerun count
-	if err == nil {
-		// rerun logics
-		if r.rerunCounts[task.Name] < r.maxReruns {
-			waitDuration := time.Duration(task.RerunInterval) * time.Second
-			log.Printf("Scheduling rerun %d for task %s in %v", r.rerunCounts[task.Name], task.Name, waitDuration)
-			r.taskTimers[task.Name] = time.AfterFunc(waitDuration, func() {
-				r.RunTask(task)
-			})
-		} else {
-			log.Printf("Failed to run task %s after %d reruns", task.Name, r.maxReruns)
-		}
+	if err != nil {
+		return
+	}
+
+	// rerun logics
+	if r.rerunCounts[task.Name] < r.maxReruns {
+		waitDuration := time.Duration(task.RerunInterval) * time.Second
+		log.Printf("Scheduling rerun %d for task %s in %v", r.rerunCounts[task.Name], task.Name, waitDuration)
+		r.taskTimers[task.Name] = time.AfterFunc(waitDuration, func() {
+			r.RunTask(task)
+		})
+	} else {
+		log.Printf("Finished task %s after %d runs", task.Name, r.maxReruns)
 	}
 }
 

@@ -6,7 +6,7 @@ type CrawlerTask struct {
 	// markets to crawl
 	Markets []string `json:"markets"`
 	// in seconds
-	RerunInterval int                      `json:"rerunInterval"`
+	RerunInterval int64                    `json:"rerunInterval"`
 	TaskConfigs   map[string]CrawlerConfig `json:"taskConfigs"`
 }
 

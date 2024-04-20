@@ -6,7 +6,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -17,7 +17,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -28,7 +28,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -39,7 +39,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -50,7 +50,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -61,7 +61,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -72,7 +72,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -83,7 +83,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -94,7 +94,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -105,7 +105,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -116,7 +116,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -127,7 +127,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }
@@ -138,7 +138,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 100
+          "maxItems": 140
         },
         "transactions": {}
       }

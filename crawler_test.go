@@ -27,7 +27,7 @@ func TestBuff_CrawlTransactions(t *testing.T) {
 		if err != nil {
 			t.Errorf("Failed to init buff crawler: %v", err)
 		}
-		defer utils.UpdateSecrets(buffCrawler, *secretStore, buffSecretName)
+		defer utils.UpdateSecrets(buffCrawler, secretStore, buffSecretName)
 
 		// db
 		dbClient, _ := database.NewDBClient("mongodb://localhost:27017", "steam-trading", 10*time.Second)
