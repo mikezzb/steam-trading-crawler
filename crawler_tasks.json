@@ -6,7 +6,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 100
         },
         "transactions": {}
       }
@@ -17,7 +17,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 100
         },
         "transactions": {}
       }
@@ -28,7 +28,117 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Tiger Tooth (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Slaughter (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Slaughter (Minimal Wear)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Tiger Tooth (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Talon Knife | Slaughter (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Stiletto Knife | Crimson Web (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Crimson Web (Minimal Wear)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Crimson Web (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Butterfly Knife | Crimson Web (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Butterfly Knife | Crimson Web (Minimal Wear)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
         },
         "transactions": {}
       }
@@ -39,7 +149,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -50,7 +160,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -61,7 +171,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -72,7 +182,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -83,7 +193,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -94,7 +204,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -105,7 +215,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -116,7 +226,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -127,7 +237,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -138,7 +248,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -149,7 +259,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -160,7 +270,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 40
         },
         "transactions": {}
       }
@@ -171,7 +281,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -182,7 +292,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -193,7 +303,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -204,7 +314,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -215,7 +325,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -226,7 +336,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -237,7 +347,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -248,7 +358,7 @@
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "transactions": {}
       }

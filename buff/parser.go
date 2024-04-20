@@ -3,6 +3,7 @@ package buff
 import (
 	"net/http"
 
+	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
@@ -49,6 +50,10 @@ func getFirstValue(data map[string]BuffGoodsInfo) BuffGoodsInfo {
 }
 
 func ExtractLowestPrice(listing []model.Listing) string {
+	if len(listing) == 0 {
+		return errors.SafeInvalidPrice
+	}
+
 	lowestPrice := listing[0].Price
 	for _, item := range listing {
 		if item.Price < lowestPrice {

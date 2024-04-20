@@ -206,7 +206,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 
 	// only update the item after all pages are crawled
 	handler.OnComplete(
-		&types.ListingsData{
+		&types.ItemData{
 			Item: updatedItem,
 		},
 	)

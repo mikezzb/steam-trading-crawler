@@ -27,6 +27,7 @@ func NewListingHandler(repos repository.RepoFactory, config *HandlerConfig) *Lis
 		config:      config,
 
 		listingCh: make(chan *types.ListingsData, 100),
+		itemCh:    make(chan *types.ItemData, 100),
 	}
 
 	go handler.onListingResult()
@@ -72,7 +73,7 @@ func (h *ListingHandler) OnError(err error) {
 }
 
 func (h *ListingHandler) OnComplete(result interface{}) {
-	// for the listing handler, the on complete will returns the updated items
+	// for the listing handler, the on complete will returns the updated item
 	data := result.(*types.ItemData)
 	h.itemCh <- data
 }

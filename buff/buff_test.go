@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mikezzb/steam-trading-crawler/buff"
+	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
@@ -60,5 +61,26 @@ func TestBuffSleep(t *testing.T) {
 		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
 		// throttled
 		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
+	})
+}
+
+func TestStringPrice(t *testing.T) {
+	t.Run("StringPrice", func(t *testing.T) {
+		testVals := []string{
+			"0.01",
+			"0.1",
+			"1",
+			"10",
+			"900",
+			"23",
+			"952340",
+			"100000",
+		}
+
+		for _, val := range testVals {
+			if errors.SafeInvalidPrice < val {
+				t.Errorf("invalid price smaller than 0.01")
+			}
+		}
 	})
 }

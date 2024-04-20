@@ -1,0 +1,27 @@
+{
+  "tasks": [
+    {
+      "name": "★ Paracord Knife | Blue Steel (Minimal Wear)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 20
+        },
+        "transactions": {}
+      }
+    },
+
+    {
+      "name": "★ Paracord Knife | Blue Steel (Factory New)",
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 20
+        },
+        "transactions": {}
+      }
+    }
+  ]
+}
