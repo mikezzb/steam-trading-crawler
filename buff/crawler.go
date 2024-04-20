@@ -190,8 +190,8 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 			updatedItem = data.Item
 		} else {
 			// update the price
-			if data.Item.LowestMarketName < updatedItem.LowestMarketPrice {
-				updatedItem.LowestMarketPrice = data.Item.LowestMarketPrice
+			if data.Item.BuffPrice.Price < updatedItem.BuffPrice.Price {
+				updatedItem.BuffPrice.Price = data.Item.BuffPrice.Price
 			}
 		}
 

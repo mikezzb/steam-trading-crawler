@@ -23,8 +23,8 @@ type BuffItemAssetInfo struct {
 type BuffItem struct {
 	Price      string            `json:"price"`
 	AssetInfo  BuffItemAssetInfo `json:"asset_info"`
-	CreatedAt  int               `json:"created_at"`
-	UpdatedAt  int               `json:"updated_at"`
+	CreatedAt  int64             `json:"created_at"`
+	UpdatedAt  int64             `json:"updated_at"`
 	PreviewUrl string            `json:"img_src"`
 	GoodsId    int               `json:"goods_id"`
 }

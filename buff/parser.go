@@ -49,6 +49,7 @@ func getFirstValue(data map[string]BuffGoodsInfo) BuffGoodsInfo {
 	return BuffGoodsInfo{}
 }
 
+// extract the lowest price from for each listing page, update lowest price at crawler
 func ExtractLowestPrice(listing []model.Listing) string {
 	if len(listing) == 0 {
 		return errors.SafeInvalidPrice
@@ -66,12 +67,23 @@ func ExtractLowestPrice(listing []model.Listing) string {
 func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
 	item := getFirstValue(data.Data.GoodsInfos)
 
+	now := shared.GetUnixNow()
+
+	steamPrice := model.MarketPrice{
+		Price:     item.SteamPrice,
+		UpdatedAt: now,
+	}
+
+	buffPrice := model.MarketPrice{
+		Price:     ExtractLowestPrice(listings),
+		UpdatedAt: now,
+	}
+
 	formattedItems := model.Item{
-		Name:              name,
-		IconUrl:           item.IconUrl,
-		SteamPrice:        item.SteamPrice,
-		LowestMarketPrice: ExtractLowestPrice(listings),
-		LowestMarketName:  shared.MARKET_NAME_BUFF,
+		Name:       name,
+		IconUrl:    item.IconUrl,
+		SteamPrice: steamPrice,
+		BuffPrice:  buffPrice,
 	}
 
 	return &formattedItems, nil
