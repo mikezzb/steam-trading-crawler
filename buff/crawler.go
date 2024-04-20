@@ -124,7 +124,6 @@ func (c *BuffCrawler) DoReqWithSave(u string, params url.Values, method, savePat
 func (c *BuffCrawler) GetCookies() (string, error) {
 	parsedUrl, _ := url.Parse(BUFF_LISTING_API)
 	cookies := c.client.Jar.Cookies(parsedUrl)
-	shared.PrintCookies(cookies, "Saved Cookies")
 	return utils.StringifyCookies(cookies), nil
 }
 
@@ -157,7 +156,6 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	data, err := c.parser.ParseItemListings(itemName, resp, resData)
 
 	if err != nil {
-		log.Printf("Err res data %v\n", resData)
 		return nil, nil, err
 	}
 

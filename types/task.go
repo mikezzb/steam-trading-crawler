@@ -10,6 +10,15 @@ type CrawlerTask struct {
 	TaskConfigs   map[string]CrawlerConfig `json:"taskConfigs"`
 }
 
+type CrawlerSubTask struct {
+	Name       string `json:"name"`
+	Market     string `json:"market"`
+	TaskName   string `json:"taskName"`
+	TaskConfig CrawlerConfig
+
+	RerunInterval int64 `json:"rerunInterval"`
+}
+
 type CrawlerTasks struct {
 	Tasks []CrawlerTask `json:"tasks"`
 }

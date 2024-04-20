@@ -1,6 +1,8 @@
 package buff
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/mikezzb/steam-trading-crawler/errors"
@@ -90,12 +92,17 @@ func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, list
 }
 
 func (p *BuffParser) ParseItemListings(name string, resp *http.Response, resData *BuffListingResponseData) (*types.ListingsData, error) {
+	if resp.StatusCode != http.StatusOK || resData.Code != "OK" {
+		return nil, fmt.Errorf("invalid response: %d %s", resp.StatusCode, resData.Code)
+	}
+
 	// format data
 	if listings, err := p.formatItemListings(resData); err != nil {
 		return nil, err
 	} else if item, err := p.formatItem(name, resData, listings); err != nil {
 		return nil, err
 	} else {
+		log.Printf("Parsed %d listings for %s\n", len(listings), name)
 		utils.PostFormatListings(name, listings)
 		return &types.ListingsData{
 			Item:     item,
@@ -114,10 +121,16 @@ func (p *BuffParser) formatItemTransactions(data *BuffTransactionResponseData) (
 }
 
 func (p *BuffParser) ParseItemTransactions(name string, resp *http.Response, resData *BuffTransactionResponseData) (*types.TransactionData, error) {
+	if resp.StatusCode != http.StatusOK || resData.Code != "OK" {
+		return nil, fmt.Errorf("invalid response: %d %s", resp.StatusCode, resData.Code)
+	}
+
 	if transactions, err := p.formatItemTransactions(resData); err != nil {
 		return nil, err
 	} else {
 		utils.PostFormatTransactions(name, transactions)
+		log.Printf("Parsed %d transactions for %s\n", len(transactions), name)
+
 		return &types.TransactionData{
 			Transactions: transactions,
 		}, nil

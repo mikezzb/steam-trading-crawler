@@ -23,6 +23,7 @@ type Runner struct {
 	rerunCounts      map[string]int
 	taskTimers       map[string]*time.Timer
 	maxReruns        int
+	marketErrors     map[string]error
 }
 
 type RunnerConfig struct {
@@ -65,6 +66,7 @@ func NewRunner(config *RunnerConfig) (*Runner, error) {
 		taskTimers:       make(map[string]*time.Timer),
 		maxReruns:        config.MaxReruns,
 		taskHistoryStore: taskHistoryStore,
+		marketErrors:     make(map[string]error),
 	}
 
 	return runner, nil
@@ -100,15 +102,43 @@ func (r *Runner) saveSecrets() {
 func (r *Runner) cleanup() {
 	// save secrets
 	r.saveSecrets()
+	r.taskHistoryStore.Save()
+}
+
+func (r *Runner) RunMarketSubTasks(market string, subTasks []types.CrawlerSubTask) {
+	for _, subTask := range subTasks {
+		err := r.runSubTask(subTask)
+		// if has error, skip all subtasks for this market
+		if err != nil {
+			return
+		}
+	}
 }
 
 func (r *Runner) Run(tasks []types.CrawlerTask) {
 	log.Printf("[START] running %v tasks: %v", len(tasks), tasks)
 	defer r.cleanup()
 
-	// run all tasks once at start
+	// group tasks by market to run in parallel
+	marketSubTasks := make(map[string][]types.CrawlerSubTask)
 	for _, task := range tasks {
-		r.RunTask(task)
+		for _, market := range task.Markets {
+			for taskName, taskConfig := range task.TaskConfigs {
+				marketSubTasks[market] = append(marketSubTasks[market], types.CrawlerSubTask{
+					Name:          task.Name,
+					Market:        market,
+					TaskName:      taskName,
+					TaskConfig:    taskConfig,
+					RerunInterval: task.RerunInterval,
+				})
+			}
+		}
+	}
+
+	// run subtasks for each market
+	for market, subTasks := range marketSubTasks {
+		// run in parallel
+		go r.RunMarketSubTasks(market, subTasks)
 	}
 
 	// enter loop to rerun tasks until no more reruns
@@ -117,11 +147,16 @@ func (r *Runner) Run(tasks []types.CrawlerTask) {
 
 	for range tick.C {
 		allDone := true
-		for _, task := range tasks {
-			if count, ok := r.rerunCounts[task.Name]; ok {
-				if count < r.maxReruns {
-					allDone = false
-					break
+		// check if all subtasks are done
+		for _, subTasks := range marketSubTasks {
+			for _, subTask := range subTasks {
+				subTaskId := getSubTaskId(&subTask)
+				if count, ok := r.rerunCounts[subTaskId]; ok {
+					// if subtask has not reached max reruns and no market error
+					if count < r.maxReruns && r.marketErrors[subTask.Market] == nil {
+						allDone = false
+						break
+					}
 				}
 			}
 		}
@@ -145,67 +180,63 @@ func (r *Runner) stopTimers() {
 	}
 }
 
-func getTaskId(name, market string) string {
-	return fmt.Sprintf("%s_%s", name, market)
+func getSubTaskId(subtask *types.CrawlerSubTask) string {
+	return fmt.Sprintf("%s_%s_%s", subtask.Market, subtask.Name, subtask.TaskName)
 }
 
-// run crawling task
-func (r *Runner) RunTask(task types.CrawlerTask) {
-	// if not run before, init rerun count
-	if _, ok := r.rerunCounts[task.Name]; !ok {
-		r.rerunCounts[task.Name] = 0
-	}
+func (r *Runner) recordSubTaskRun(subTaskId string) {
+	r.taskHistoryStore.Set(subTaskId, shared.GetUnixNow())
+	r.rerunCounts[subTaskId]++
+	r.saveSecrets()
+}
 
-	var execTask = func(task types.CrawlerTask) error {
-		var err error = nil
+func (r *Runner) runSubTask(subtask types.CrawlerSubTask) error {
+	subTaskId := getSubTaskId(&subtask)
 
-		for _, market := range task.Markets {
-			// check if last task run within the rerun interval
-			taskId := getTaskId(task.Name, market)
-			if r.taskHistoryStore.Get(taskId) != nil {
-				lastRunTime := r.taskHistoryStore.Get(taskId).(int64)
-				now := shared.GetUnixNow()
-				if now-lastRunTime < task.RerunInterval {
-					log.Printf("Task %s already run within %d seconds, skipping", task.Name, task.RerunInterval)
-					continue // skip this task
-				}
-			}
-
-			// for each market run crawl tasks
-			for taskName, taskConfig := range task.TaskConfigs {
-				err = r.Crawl(market, task.Name, taskName, taskConfig)
-				r.saveSecrets()
-				if err != nil {
-					log.Printf("[%s] Failed to crawl %s for task %s: %v", market, taskName, task.Name, err)
-					break // stop running tasks for this market
-				}
-			}
-
-			// update task history
-			r.taskHistoryStore.Set(taskId, shared.GetUnixNow())
+	var exec = func(subtask *types.CrawlerSubTask) error {
+		// check if market has error
+		if err, ok := r.marketErrors[subtask.Market]; ok {
+			log.Printf("Market %s has error: %v, skipping subtask %s", subtask.Market, err, subtask.TaskName)
+			return nil
 		}
 
+		// check if last task run within the rerun interval
+		if r.taskHistoryStore.Get(subTaskId) != nil {
+			lastRunTime := r.taskHistoryStore.Get(subTaskId).(int64)
+			now := shared.GetUnixNow()
+			if now-lastRunTime < subtask.RerunInterval {
+				log.Printf("Subtask %s already run within %d seconds, skipping", subtask.TaskName, subtask.RerunInterval)
+				return nil
+			}
+		}
+
+		// run subtask
+		err := r.Crawl(subtask.Market, subtask.Name, subtask.TaskName, subtask.TaskConfig)
+		r.recordSubTaskRun(subTaskId)
 		return err
 	}
 
-	// attempt to run task and scedule reruns if needed
-	r.rerunCounts[task.Name]++
-	err := execTask(task)
-
+	// run
+	err := exec(&subtask)
+	// if error, record error
 	if err != nil {
-		return
+		log.Printf("[%s] Failed to crawl %s for sub task %s: %v", subtask.Market, subtask.TaskName, subtask.Name, err)
+		r.marketErrors[subtask.Market] = err
+		return err
 	}
 
-	// rerun logics
-	if r.rerunCounts[task.Name] < r.maxReruns {
-		waitDuration := time.Duration(task.RerunInterval) * time.Second
-		log.Printf("Scheduling rerun %d for task %s in %v", r.rerunCounts[task.Name], task.Name, waitDuration)
-		r.taskTimers[task.Name] = time.AfterFunc(waitDuration, func() {
-			r.RunTask(task)
+	// rerun subtask
+	if r.rerunCounts[subTaskId] < r.maxReruns {
+		waitDuration := time.Duration(subtask.RerunInterval) * time.Second
+		log.Printf("Scheduling rerun %d for subtask %s in %v", r.rerunCounts[subTaskId], subtask.TaskName, waitDuration)
+		r.taskTimers[subTaskId] = time.AfterFunc(waitDuration, func() {
+			r.runSubTask(subtask)
 		})
 	} else {
-		log.Printf("Finished task %s after %d runs", task.Name, r.maxReruns)
+		log.Printf("Finished subtask %s after %d runs", subtask.TaskName, r.maxReruns)
 	}
+
+	return nil
 }
 
 func (r *Runner) Crawl(market string, itemName, taskName string, config types.CrawlerConfig) error {
