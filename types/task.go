@@ -1,16 +1,20 @@
 package types
 
 type CrawlerTask struct {
-	// item name
+	// item name (base name without exterior)
 	Name string `json:"name"`
+	// exteriors to crawl (e.g. Factory New, Minimal Wear, etc.)
+	Exteriors []string `json:"exteriors"`
 	// markets to crawl
 	Markets []string `json:"markets"`
 	// in seconds
-	RerunInterval int64                    `json:"rerunInterval"`
-	TaskConfigs   map[string]CrawlerConfig `json:"taskConfigs"`
+	RerunInterval int64 `json:"rerunInterval"`
+	// all tasks to run for this item, each task has its own config
+	TaskConfigs map[string]CrawlerConfig `json:"taskConfigs"`
 }
 
 type CrawlerSubTask struct {
+	// full item name (with exterior)
 	Name       string `json:"name"`
 	Market     string `json:"market"`
 	TaskName   string `json:"taskName"`

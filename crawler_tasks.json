@@ -1,7 +1,8 @@
 {
   "tasks": [
     {
-      "name": "★ Bayonet | Marble Fade (Factory New)",
+      "name": "★ Bayonet | Marble Fade",
+      "exteriors": ["Factory New"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -12,7 +13,8 @@
       }
     },
     {
-      "name": "★ M9 Bayonet | Marble Fade (Factory New)",
+      "name": "★ M9 Bayonet | Marble Fade",
+      "exteriors": ["Factory New"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -23,7 +25,8 @@
       }
     },
     {
-      "name": "★ Flip Knife | Marble Fade (Factory New)",
+      "name": "★ Flip Knife | Marble Fade",
+      "exteriors": ["Factory New"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -34,7 +37,8 @@
       }
     },
     {
-      "name": "★ Karambit | Tiger Tooth (Factory New)",
+      "name": "★ Karambit | Tiger Tooth",
+      "exteriors": ["Factory New"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -45,7 +49,8 @@
       }
     },
     {
-      "name": "★ Karambit | Slaughter (Factory New)",
+      "name": "★ Karambit | Slaughter",
+      "exteriors": ["Factory New", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -56,7 +61,8 @@
       }
     },
     {
-      "name": "★ Karambit | Slaughter (Minimal Wear)",
+      "name": "★ Talon Knife | Slaughter",
+      "exteriors": ["Factory New"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -67,7 +73,8 @@
       }
     },
     {
-      "name": "★ Karambit | Tiger Tooth (Factory New)",
+      "name": "★ Stiletto Knife | Crimson Web",
+      "exteriors": ["Factory New"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -78,7 +85,8 @@
       }
     },
     {
-      "name": "★ Talon Knife | Slaughter (Factory New)",
+      "name": "★ Karambit | Crimson Web",
+      "exteriors": ["Minimal Wear", "Factory New"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -89,7 +97,8 @@
       }
     },
     {
-      "name": "★ Stiletto Knife | Crimson Web (Factory New)",
+      "name": "★ Butterfly Knife | Crimson Web",
+      "exteriors": ["Factory New", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -100,51 +109,8 @@
       }
     },
     {
-      "name": "★ Karambit | Crimson Web (Minimal Wear)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 140
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Karambit | Crimson Web (Factory New)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 140
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Butterfly Knife | Crimson Web (Factory New)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 140
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Butterfly Knife | Crimson Web (Minimal Wear)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 140
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Bayonet | Blue Steel (Minimal Wear)",
+      "name": "★ Bayonet | Blue Steel",
+      "exteriors": ["Minimal Wear", "Field-Tested"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -155,18 +121,8 @@
       }
     },
     {
-      "name": "★ Bayonet | Blue Steel (Field-Tested)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 40
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Falchion Knife | Blue Steel (Field-Tested)",
+      "name": "★ Falchion Knife | Blue Steel",
+      "exteriors": ["Field-Tested", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -177,18 +133,8 @@
       }
     },
     {
-      "name": "★ Falchion Knife | Blue Steel (Minimal Wear)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 20
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Karambit | Blue Steel (Field-Tested)",
+      "name": "★ Karambit | Blue Steel",
+      "exteriors": ["Field-Tested", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -199,7 +145,8 @@
       }
     },
     {
-      "name": "★ Karambit | Blue Steel (Minimal Wear)",
+      "name": "★ Stiletto Knife | Blue Steel",
+      "exteriors": ["Field-Tested", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -210,7 +157,8 @@
       }
     },
     {
-      "name": "★ Stiletto Knife | Blue Steel (Field-Tested)",
+      "name": "★ Talon Knife | Blue Steel",
+      "exteriors": ["Minimal Wear", "Field-Tested"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -221,7 +169,8 @@
       }
     },
     {
-      "name": "★ Stiletto Knife | Blue Steel (Minimal Wear)",
+      "name": "★ Skeleton Knife | Blue Steel",
+      "exteriors": ["Field-Tested", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -232,51 +181,8 @@
       }
     },
     {
-      "name": "★ Talon Knife | Blue Steel (Minimal Wear)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 40
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Talon Knife | Blue Steel (Field-Tested)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 40
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Skeleton Knife | Blue Steel (Field-Tested)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 40
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Skeleton Knife | Blue Steel (Minimal Wear)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 40
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Survival Knife | Blue Steel (Field-Tested)",
+      "name": "★ Survival Knife | Blue Steel",
+      "exteriors": ["Field-Tested", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -287,7 +193,8 @@
       }
     },
     {
-      "name": "★ Survival Knife | Blue Steel (Minimal Wear)",
+      "name": "★ Paracord Knife | Blue Steel",
+      "exteriors": ["Minimal Wear", "Field-Tested"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -298,7 +205,8 @@
       }
     },
     {
-      "name": "★ Paracord Knife | Blue Steel (Minimal Wear)",
+      "name": "★ Nomad Knife | Blue Steel",
+      "exteriors": ["Field-Tested"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -309,7 +217,8 @@
       }
     },
     {
-      "name": "★ Paracord Knife | Blue Steel (Field-Tested)",
+      "name": "★ Kukri Knife | Blue Steel",
+      "exteriors": ["Field-Tested"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -320,7 +229,8 @@
       }
     },
     {
-      "name": "★ Nomad Knife | Blue Steel (Field-Tested)",
+      "name": "★ Flip Knife | Blue Steel",
+      "exteriors": ["Field-Tested"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -331,29 +241,8 @@
       }
     },
     {
-      "name": "★ Kukri Knife | Blue Steel (Field-Tested)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 20
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Flip Knife | Blue Steel (Field-Tested)",
-      "markets": ["buff"],
-      "rerunInterval": 1800,
-      "taskConfigs": {
-        "listings": {
-          "maxItems": 20
-        },
-        "transactions": {}
-      }
-    },
-    {
-      "name": "★ Huntsman Knife | Blue Steel (Field-Tested)",
+      "name": "★ Huntsman Knife | Blue Steel",
+      "exteriors": ["Field-Tested"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
