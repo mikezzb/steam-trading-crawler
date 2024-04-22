@@ -10,4 +10,5 @@ type Crawler interface {
 	CrawlItemListings(itemName string, handler Handler, config *CrawlerConfig) error
 	CrawlItemTransactions(itemName string, handler Handler, config *CrawlerConfig) error
 	GetCookies() (string, error)
+	Stop()
 }

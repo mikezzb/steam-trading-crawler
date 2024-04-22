@@ -116,7 +116,7 @@ func (r *Runner) RunMarketSubTasks(market string, subTasks []types.CrawlerSubTas
 }
 
 func (r *Runner) Run(tasks []types.CrawlerTask) {
-	log.Printf("[START] running %v tasks: %v", len(tasks), tasks)
+	log.Printf("[START] running %v tasks", len(tasks))
 	defer r.cleanup()
 
 	// group tasks by market to run in parallel
@@ -196,6 +196,8 @@ func (r *Runner) recordSubTaskRun(subTaskId string) {
 }
 
 func (r *Runner) runSubTask(subtask types.CrawlerSubTask) error {
+	log.Printf("[%s] Running subtask %v", subtask.Market, subtask)
+
 	subTaskId := getSubTaskId(&subtask)
 
 	var exec = func(subtask *types.CrawlerSubTask) error {

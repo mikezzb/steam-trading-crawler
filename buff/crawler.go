@@ -22,6 +22,11 @@ type BuffCrawler struct {
 	client      *http.Client
 	parser      *BuffParser
 	lastReqTime time.Time
+	stop        bool
+}
+
+func (c *BuffCrawler) Stop() {
+	c.stop = true
 }
 
 func NewCrawler(cookie string) (*BuffCrawler, error) {
@@ -60,6 +65,10 @@ func (c *BuffCrawler) SleepForSafe() {
 
 func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.Response, error) {
 	c.SleepForSafe()
+
+	if c.stop {
+		return nil, errors.ErrCrawlerManuallyStopped
+	}
 
 	// encode params
 	baseUrl, err := url.Parse(u)
@@ -163,6 +172,9 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 }
 
 func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
+	// reset stop flag
+	c.stop = false
+
 	var updatedItem *model.Item
 	// round up
 	maxPages := (config.MaxItems + BUFF_LISTING_ITEMS_PER_PAGE - 1) / BUFF_LISTING_ITEMS_PER_PAGE
@@ -175,6 +187,16 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 
 	for i := 1; i <= maxPages; i++ {
 		data, control, err := c.CrawlItemListingPage(itemName, buffId, i, config.Filters)
+
+		// handle stop
+		if c.stop || err == errors.ErrCrawlerManuallyStopped {
+			log.Printf("Crawler manually stopped\n")
+			handler.OnComplete(
+				&types.ItemData{
+					Item: updatedItem,
+				})
+			return nil
+		}
 
 		if err != nil {
 			handler.OnError(err)
@@ -213,6 +235,9 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 }
 
 func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filters map[string]string) (*types.TransactionData, *Control, error) {
+	// reset stop flag
+	c.stop = false
+
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
 	params.Add("goods_id", strconv.Itoa(buffId))

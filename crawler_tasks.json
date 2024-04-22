@@ -62,7 +62,67 @@
     },
     {
       "name": "★ Talon Knife | Slaughter",
-      "exteriors": ["Factory New"],
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 140
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Butterfly Knife | Slaughter",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 140
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Stiletto Knife | Slaughter",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 140
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Skeleton Knife | Slaughter",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 140
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Paracord Knife | Slaughter",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 140
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Survival Knife | Slaughter",
+      "exteriors": ["Factory New", "Minimal Wear"],
       "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
@@ -248,6 +308,126 @@
       "taskConfigs": {
         "listings": {
           "maxItems": 20
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Bayonet | Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Flip Knife | Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ M9 Bayonet | Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ M9 Bayonet | Gamma Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Bayonet | Gamma Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Flip Knife | Gamma Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Karambit | Gamma Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Butterfly Knife | Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
+        },
+        "transactions": {}
+      }
+    },
+    {
+      "name": "★ Butterfly Knife | Gamma Doppler",
+      "exteriors": ["Factory New", "Minimal Wear"],
+      "markets": ["buff"],
+      "rerunInterval": 1800,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 100
         },
         "transactions": {}
       }
