@@ -7,6 +7,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/mikezzb/steam-trading-crawler/crawler"
 	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
@@ -16,7 +17,7 @@ import (
 
 type BuffCrawler struct {
 	parser  *BuffParser
-	crawler *utils.Crawler
+	crawler *crawler.Crawler
 }
 
 func (c *BuffCrawler) Stop() {
@@ -28,14 +29,14 @@ func (c *BuffCrawler) GetCookies() (string, error) {
 }
 
 func NewCrawler(cookie string) (*BuffCrawler, error) {
-	config := &utils.CrawlerConfig{
+	config := &crawler.CrawlerConfig{
 		Cookie:      cookie,
 		AuthUrls:    []string{BUFF_LISTING_API, BUFF_TRANSACTION_API},
 		SleepMinSec: BUFF_SLEEP_TIME_MIN_S,
 		SleepMaxSec: BUFF_SLEEP_TIME_MAX_S,
 		Headers:     BUFF_HEADERS,
 	}
-	crawler, err := utils.NewCrawler(config)
+	crawler, err := crawler.NewCrawler(config)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +82,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	return data, c.parser.ParseListingControl(resData), nil
 }
 
-func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlTaskConfig) error {
+func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.IHandler, config *types.CrawlTaskConfig) error {
 	// reset stop flag
 	c.crawler.ResetStop()
 
@@ -170,7 +171,7 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 	return data, c.parser.ParseTransactionControl(resData), nil
 }
 
-func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.Handler, config *types.CrawlTaskConfig) error {
+func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.IHandler, config *types.CrawlTaskConfig) error {
 	// reset stop flag
 	c.crawler.ResetStop()
 

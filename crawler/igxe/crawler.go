@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/mikezzb/steam-trading-crawler/crawler"
 	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
@@ -13,12 +14,12 @@ import (
 )
 
 type IgxeCrawler struct {
-	crawler *utils.Crawler
+	crawler *crawler.Crawler
 	parser  *IgxeParser
 }
 
-func NewIgxeCrawler(cookie string) (*IgxeCrawler, error) {
-	crawler, err := utils.NewCrawler(&utils.CrawlerConfig{
+func NewCrawler(cookie string) (*IgxeCrawler, error) {
+	crawler, err := crawler.NewCrawler(&crawler.CrawlerConfig{
 		Cookie:      cookie,
 		AuthUrls:    nil,
 		SleepMinSec: IGXE_SLEEP_TIME_MIN_S,
@@ -88,7 +89,7 @@ func (c *IgxeCrawler) crawlItemListingPage(itemName string, igxeId, pageNum int,
 	return data, c.parser.ParseListingControl(resData), nil
 }
 
-func (c *IgxeCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlTaskConfig) error {
+func (c *IgxeCrawler) CrawlItemListings(itemName string, handler types.IHandler, config *types.CrawlTaskConfig) error {
 	// reset stop flag
 	c.crawler.ResetStop()
 
@@ -167,7 +168,7 @@ func (c *IgxeCrawler) crawlItemTransactionPage(itemName string, igxeId, pageNum 
 	return data, c.parser.ParseTransactionControl(resData), nil
 }
 
-func (c *IgxeCrawler) CrawlItemTransactions(itemName string, handler types.Handler, config *types.CrawlTaskConfig) error {
+func (c *IgxeCrawler) CrawlItemTransactions(itemName string, handler types.IHandler, config *types.CrawlTaskConfig) error {
 	// reset stop flag
 	c.crawler.ResetStop()
 

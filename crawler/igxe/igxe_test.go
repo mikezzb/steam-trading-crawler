@@ -3,13 +3,13 @@ package igxe_test
 import (
 	"testing"
 
+	"github.com/mikezzb/steam-trading-crawler/crawler/igxe"
 	"github.com/mikezzb/steam-trading-crawler/handler"
-	"github.com/mikezzb/steam-trading-crawler/igxe"
 	"github.com/mikezzb/steam-trading-crawler/types"
 )
 
 func TestIgxeListing(t *testing.T) {
-	c, err := igxe.NewIgxeCrawler("")
+	c, err := igxe.NewCrawler("")
 	if err != nil {
 		t.Errorf("Failed to init igxe crawler: %v", err)
 	}
@@ -28,7 +28,7 @@ func TestIgxeListing(t *testing.T) {
 }
 
 func TestIgxeTransaction(t *testing.T) {
-	c, err := igxe.NewIgxeCrawler("")
+	c, err := igxe.NewCrawler("")
 	if err != nil {
 		t.Errorf("Failed to init igxe crawler: %v", err)
 	}

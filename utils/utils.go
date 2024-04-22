@@ -11,11 +11,26 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	shared "github.com/mikezzb/steam-trading-shared"
-
 	"github.com/mikezzb/steam-trading-shared/database/model"
 )
+
+// extract the lowest price from for each listing page, update lowest price at crawler
+func ExtractLowestPrice(listing []model.Listing) string {
+	if len(listing) == 0 {
+		return errors.SafeInvalidPrice
+	}
+
+	lowestPrice := listing[0].Price
+	for _, item := range listing {
+		if item.Price < lowestPrice {
+			lowestPrice = item.Price
+		}
+	}
+	return lowestPrice
+}
 
 func ParseCookieString(cookieStr string) []*http.Cookie {
 	var cookies []*http.Cookie
@@ -67,7 +82,7 @@ func StringifyCookies(cookies []*http.Cookie) string {
 	return cookieStr
 }
 
-func UpdateSecrets(crawler types.Crawler, store *shared.JsonKvStore, label string) {
+func UpdateSecrets(crawler types.ICrawler, store *shared.JsonKvStore, label string) {
 	cookieStr, err := crawler.GetCookies()
 	if err != nil {
 		return
@@ -183,4 +198,14 @@ func DownloadImage(imageURL, path string) error {
 
 func GetSecretName(marketName string) string {
 	return marketName + "Secret"
+}
+
+func GetNumPages(totalItems, itemsPerPage int) int {
+	return (totalItems + itemsPerPage - 1) / itemsPerPage
+}
+
+func AddFilters(params url.Values, filters map[string]string) {
+	for k, v := range filters {
+		params.Add(k, v)
+	}
 }

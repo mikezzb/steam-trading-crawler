@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mikezzb/steam-trading-crawler/buff"
+	"github.com/mikezzb/steam-trading-crawler/crawler/buff"
 	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"

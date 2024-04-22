@@ -52,7 +52,7 @@ func main() {
 	})
 
 	// tasks
-	fileBytes, err := os.ReadFile("crawler_tasks.json")
+	fileBytes, err := os.ReadFile("crawler_tasks_test.json")
 
 	if err != nil {
 		log.Fatalf("Failed to load tasks: %v", err)

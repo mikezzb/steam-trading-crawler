@@ -7,7 +7,8 @@ import (
 	"path"
 	"time"
 
-	"github.com/mikezzb/steam-trading-crawler/buff"
+	"github.com/mikezzb/steam-trading-crawler/crawler/buff"
+	"github.com/mikezzb/steam-trading-crawler/crawler/igxe"
 	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/types"
@@ -19,7 +20,7 @@ type Runner struct {
 	handlerFactory   handler.IHandlerFactory
 	secretStore      *shared.JsonKvStore
 	taskHistoryStore *shared.JsonKvStore
-	crawlers         map[string]types.Crawler
+	crawlers         map[string]types.ICrawler
 	rerunCounts      map[string]int
 	taskTimers       map[string]*time.Timer
 	maxReruns        int
@@ -61,7 +62,7 @@ func NewRunner(config *RunnerConfig) (*Runner, error) {
 	runner := &Runner{
 		secretStore:      config.SecretStore,
 		handlerFactory:   config.HandlerFactory,
-		crawlers:         make(map[string]types.Crawler),
+		crawlers:         make(map[string]types.ICrawler),
 		rerunCounts:      make(map[string]int),
 		taskTimers:       make(map[string]*time.Timer),
 		maxReruns:        config.MaxReruns,
@@ -72,7 +73,7 @@ func NewRunner(config *RunnerConfig) (*Runner, error) {
 	return runner, nil
 }
 
-func (r *Runner) GetCrawler(marketName string) (types.Crawler, error) {
+func (r *Runner) GetCrawler(marketName string) (types.ICrawler, error) {
 	// if crawler already exists, return it
 	if crawler, ok := r.crawlers[marketName]; ok {
 		return crawler, nil
@@ -82,6 +83,14 @@ func (r *Runner) GetCrawler(marketName string) (types.Crawler, error) {
 	case "buff":
 		buffSecret := r.secretStore.Get(utils.GetSecretName(marketName)).(string)
 		crawler, err := buff.NewCrawler(buffSecret)
+		if err != nil {
+			return nil, err
+		}
+		r.crawlers[marketName] = crawler
+		return crawler, nil
+	case "igxe":
+		igxeSecret := r.secretStore.Get(utils.GetSecretName(marketName)).(string)
+		crawler, err := igxe.NewCrawler(igxeSecret)
 		if err != nil {
 			return nil, err
 		}

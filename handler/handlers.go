@@ -9,8 +9,8 @@ import (
 )
 
 type IHandlerFactory interface {
-	GetListingsHandler() types.Handler
-	GetTransactionHandler() types.Handler
+	GetListingsHandler() types.IHandler
+	GetTransactionHandler() types.IHandler
 }
 
 type HandlerFactory struct {
@@ -38,14 +38,14 @@ func NewHandlerFactory(repos repository.RepoFactory, config *HandlerConfig) *Han
 	}
 }
 
-func (f *HandlerFactory) GetListingsHandler() types.Handler {
+func (f *HandlerFactory) GetListingsHandler() types.IHandler {
 	return NewListingHandler(
 		f.repos,
 		f.config,
 	)
 }
 
-func (f *HandlerFactory) GetTransactionHandler() types.Handler {
+func (f *HandlerFactory) GetTransactionHandler() types.IHandler {
 	return NewBaseHandler(
 		func(result interface{}) {
 			transactionRepo := f.repos.GetTransactionRepository()

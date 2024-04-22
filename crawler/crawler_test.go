@@ -1,15 +1,15 @@
-package utils_test
+package crawler_test
 
 import (
 	"net/url"
 	"testing"
 
-	"github.com/mikezzb/steam-trading-crawler/utils"
+	"github.com/mikezzb/steam-trading-crawler/crawler"
 )
 
 func TestThrottle(t *testing.T) {
 	t.Run("Sleep", func(t *testing.T) {
-		crawler, _ := utils.NewCrawler(&utils.CrawlerConfig{
+		crawler, _ := crawler.NewCrawler(&crawler.CrawlerConfig{
 			Cookie:      "cookie",
 			SleepMinSec: 1,
 			SleepMaxSec: 2,

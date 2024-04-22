@@ -1,4 +1,4 @@
-package utils
+package crawler
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/mikezzb/steam-trading-crawler/errors"
+	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
 )
 
@@ -47,7 +48,7 @@ func NewCrawler(config *CrawlerConfig) (*Crawler, error) {
 	c := &Crawler{
 		config: config,
 	}
-	client, err := NewClientWithCookie(config.Cookie, config.AuthUrls)
+	client, err := utils.NewClientWithCookie(config.Cookie, config.AuthUrls)
 	if err != nil {
 		return nil, err
 	}
@@ -118,18 +119,18 @@ func (c *Crawler) DoReqWithSave(u string, params url.Values, method, savePath st
 	}
 
 	// save raw response
-	bodyBytes, _ := Body2Bytes(resp)
+	bodyBytes, _ := utils.Body2Bytes(resp)
 
 	defer resp.Body.Close()
 
-	err = SaveResponseBody(bodyBytes, savePath)
+	err = utils.SaveResponseBody(bodyBytes, savePath)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// decode response
-	decodedReader, err := ReadBytes(bodyBytes)
+	decodedReader, err := utils.ReadBytes(bodyBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -150,15 +151,5 @@ func (c *Crawler) GetCookies() (string, error) {
 	authUrl := c.config.AuthUrls[0]
 	parsedUrl, _ := url.Parse(authUrl)
 	cookies := c.client.Jar.Cookies(parsedUrl)
-	return StringifyCookies(cookies), nil
-}
-
-func GetNumPages(totalItems, itemsPerPage int) int {
-	return (totalItems + itemsPerPage - 1) / itemsPerPage
-}
-
-func AddFilters(params url.Values, filters map[string]string) {
-	for k, v := range filters {
-		params.Add(k, v)
-	}
+	return utils.StringifyCookies(cookies), nil
 }
