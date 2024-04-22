@@ -1,14 +1,11 @@
 package buff
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"net/url"
 	"path"
 	"strconv"
-	"time"
 
 	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
@@ -18,122 +15,35 @@ import (
 )
 
 type BuffCrawler struct {
-	cookie      string
-	client      *http.Client
-	parser      *BuffParser
-	lastReqTime time.Time
-	stop        bool
+	parser  *BuffParser
+	crawler *utils.Crawler
 }
 
 func (c *BuffCrawler) Stop() {
-	c.stop = true
+	c.crawler.Stop()
+}
+
+func (c *BuffCrawler) GetCookies() (string, error) {
+	return c.crawler.GetCookies()
 }
 
 func NewCrawler(cookie string) (*BuffCrawler, error) {
 	c := &BuffCrawler{}
-	c.cookie = cookie
-	client, err := utils.NewClientWithCookie(cookie, []string{BUFF_LISTING_API, BUFF_TRANSACTION_API})
+	config := &utils.CrawlerConfig{
+		Cookie:      cookie,
+		AuthUrls:    []string{BUFF_LISTING_API, BUFF_TRANSACTION_API},
+		SleepMinSec: BUFF_SLEEP_TIME_MIN_S,
+		SleepMaxSec: BUFF_SLEEP_TIME_MAX_S,
+		Headers:     BUFF_HEADERS,
+	}
+
+	crawler, err := utils.NewCrawler(config)
 	if err != nil {
 		return nil, err
 	}
-	c.client = client
-	c.parser = &BuffParser{}
-	// init last req time so the first req will do immediately
-	c.lastReqTime = time.Unix(time.Now().Unix()-int64(BUFF_SLEEP_TIME_MAX_S), 0)
+	c.crawler = crawler
+
 	return c, nil
-}
-
-func (c *BuffCrawler) SetHeaders(req *http.Request) {
-	for k, v := range BUFF_HEADERS {
-		req.Header.Set(k, v)
-	}
-}
-
-func (c *BuffCrawler) SleepForSafe() {
-	timeSinceLastReq := time.Since(c.lastReqTime)
-
-	if timeSinceLastReq < BUFF_SLEEP_TIME_MIN {
-		sleepDuration := shared.GetRandomSleepDuration(
-			BUFF_SLEEP_TIME_MIN_S, BUFF_SLEEP_TIME_MAX_S)
-		sleepTime := sleepDuration - timeSinceLastReq
-		log.Printf("Sleeping for %s\n", sleepTime)
-		time.Sleep(sleepTime)
-	}
-
-	c.lastReqTime = time.Now()
-}
-
-func (c *BuffCrawler) DoReq(u string, params url.Values, method string) (*http.Response, error) {
-	c.SleepForSafe()
-
-	if c.stop {
-		return nil, errors.ErrCrawlerManuallyStopped
-	}
-
-	// encode params
-	baseUrl, err := url.Parse(u)
-	if err != nil {
-		return nil, err
-	}
-
-	baseUrl.RawQuery = params.Encode()
-
-	// make request
-	req, err := http.NewRequest(method, baseUrl.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	// set headers
-	c.SetHeaders(req)
-
-	// return nil, nil
-
-	// do request
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func (c *BuffCrawler) DoReqWithSave(u string, params url.Values, method, savePath string, resData interface{}) (*http.Response, error) {
-	resp, err := c.DoReq(u, params, method)
-	if err != nil {
-		return nil, err
-	}
-
-	// save raw response
-	bodyBytes, _ := utils.Body2Bytes(resp)
-
-	defer resp.Body.Close()
-
-	err = utils.SaveResponseBody(bodyBytes, savePath)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// decode response
-	decodedReader, err := utils.ReadBytes(bodyBytes)
-	if err != nil {
-		return nil, err
-	}
-	defer decodedReader.Close()
-
-	// unmarshal response
-	if err := json.NewDecoder(decodedReader).Decode(&resData); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
-func (c *BuffCrawler) GetCookies() (string, error) {
-	parsedUrl, _ := url.Parse(BUFF_LISTING_API)
-	cookies := c.client.Jar.Cookies(parsedUrl)
-	return utils.StringifyCookies(cookies), nil
 }
 
 func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int, filters map[string]string) (*types.ListingsData, *Control, error) {
@@ -155,7 +65,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow()))
 	resData := &BuffListingResponseData{}
-	resp, err := c.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath, resData)
+	resp, err := c.crawler.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath, resData)
 
 	if err != nil {
 		return nil, nil, err
@@ -173,7 +83,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 
 func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
 	// reset stop flag
-	c.stop = false
+	c.crawler.ResetStop()
 
 	var updatedItem *model.Item
 	// round up
@@ -189,7 +99,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 		data, control, err := c.CrawlItemListingPage(itemName, buffId, i, config.Filters)
 
 		// handle stop
-		if c.stop || err == errors.ErrCrawlerManuallyStopped {
+		if c.crawler.Stopped || err == errors.ErrCrawlerManuallyStopped {
 			log.Printf("Crawler manually stopped\n")
 			handler.OnComplete(
 				&types.ItemData{
@@ -236,7 +146,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 
 func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filters map[string]string) (*types.TransactionData, *Control, error) {
 	// reset stop flag
-	c.stop = false
+	c.crawler.ResetStop()
 
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
@@ -249,7 +159,7 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_t_%s_%s.json", itemName, shared.GetTimestampNow()))
 	resData := &BuffTransactionResponseData{}
-	resp, err := c.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath, resData)
+	resp, err := c.crawler.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath, resData)
 
 	if err != nil {
 		return nil, nil, err
