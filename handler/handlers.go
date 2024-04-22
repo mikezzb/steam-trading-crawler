@@ -63,3 +63,17 @@ var DEFAULT_HANDLER_CONFIG = &HandlerConfig{
 	StaticOutputDir: "output/static",
 	SecretStore:     DEFAULT_SECRET_STORE,
 }
+
+func GetTestHandler() *BaseHandler {
+	return NewBaseHandler(
+		func(result interface{}) {
+			log.Printf("Result: %v", result)
+		},
+		func(err error) {
+			log.Printf("Error: %v", err)
+		},
+		func(result interface{}) {
+			log.Printf("Complete: %v", result)
+		},
+	)
+}

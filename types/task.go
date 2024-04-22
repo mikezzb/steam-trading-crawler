@@ -10,7 +10,7 @@ type CrawlerTask struct {
 	// in seconds
 	RerunInterval int64 `json:"rerunInterval"`
 	// all tasks to run for this item, each task has its own config
-	TaskConfigs map[string]CrawlerConfig `json:"taskConfigs"`
+	TaskConfigs map[string]CrawlTaskConfig `json:"taskConfigs"`
 }
 
 type CrawlerSubTask struct {
@@ -18,7 +18,7 @@ type CrawlerSubTask struct {
 	Name       string `json:"name"`
 	Market     string `json:"market"`
 	TaskName   string `json:"taskName"`
-	TaskConfig CrawlerConfig
+	TaskConfig CrawlTaskConfig
 
 	RerunInterval int64 `json:"rerunInterval"`
 }

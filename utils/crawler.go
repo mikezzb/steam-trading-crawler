@@ -152,3 +152,13 @@ func (c *Crawler) GetCookies() (string, error) {
 	cookies := c.client.Jar.Cookies(parsedUrl)
 	return StringifyCookies(cookies), nil
 }
+
+func GetNumPages(totalItems, itemsPerPage int) int {
+	return (totalItems + itemsPerPage - 1) / itemsPerPage
+}
+
+func AddFilters(params url.Values, filters map[string]string) {
+	for k, v := range filters {
+		params.Add(k, v)
+	}
+}

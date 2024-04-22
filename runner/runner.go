@@ -247,7 +247,7 @@ func (r *Runner) runSubTask(subtask types.CrawlerSubTask) error {
 	return nil
 }
 
-func (r *Runner) Crawl(market string, itemName, taskName string, config types.CrawlerConfig) error {
+func (r *Runner) Crawl(market string, itemName, taskName string, config types.CrawlTaskConfig) error {
 	crawler, err := r.GetCrawler(market)
 	if err != nil {
 		return err
