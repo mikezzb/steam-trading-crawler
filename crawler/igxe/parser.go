@@ -70,6 +70,7 @@ func (p *IgxeParser) ParseItemListings(name string, resp *http.Response, resData
 	} else if item, err := p.getPriceItem(name, listings); err != nil {
 		return nil, err
 	} else {
+		utils.PostFormatListings(name, listings)
 		return &types.ListingsData{
 			Item:     item,
 			Listings: listings,
@@ -94,6 +95,8 @@ func toTransactions(item *IgxeTransaction) *model.Transaction {
 		PaintIndex: item.PaintIndex,
 		PaintSeed:  item.PaintSeed,
 		InstanceId: strconv.Itoa(item.ID),
+		// MUST provide an unique asset id to upsert
+		AssetId: strconv.Itoa(item.ID),
 
 		Market: shared.MARKET_NAME_IGXE,
 	}
@@ -117,6 +120,7 @@ func (p *IgxeParser) ParseItemTransactions(name string, resp *http.Response, res
 	if transactions, err := p.formatTransactions(resData); err != nil {
 		return nil, err
 	} else {
+		utils.PostFormatTransactions(name, transactions)
 		return &types.TransactionData{
 			Transactions: transactions,
 		}, nil

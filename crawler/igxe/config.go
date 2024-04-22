@@ -2,6 +2,7 @@ package igxe
 
 import (
 	"fmt"
+	"log"
 	"path"
 	"strconv"
 
@@ -21,8 +22,8 @@ const (
 
 // configs
 const (
-	IGXE_SLEEP_TIME_MIN_S = 7
-	IGXE_SLEEP_TIME_MAX_S = 15
+	IGXE_SLEEP_TIME_MIN_S = 13
+	IGXE_SLEEP_TIME_MAX_S = 22
 
 	IGXE_RAW_RES_DIR = "output"
 )
@@ -53,4 +54,8 @@ func getIgxeTransactionUrl(itemId int) string {
 
 func getIgxeSavePath(itemName string, pageNum int, label string) string {
 	return path.Join(IGXE_RAW_RES_DIR, fmt.Sprintf("igxe_%s_%s_%d_%s.json", label, itemName, pageNum, shared.GetTimestampNow()))
+}
+
+func igxeLog(format string, v ...interface{}) {
+	log.Printf("[igxe] "+format, v...)
 }

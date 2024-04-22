@@ -1,7 +1,6 @@
 package igxe
 
 import (
-	"log"
 	"net/url"
 	"strconv"
 
@@ -58,7 +57,7 @@ func (c *IgxeCrawler) getItemWithPrice(name, price string) *model.Item {
 }
 
 func (c *IgxeCrawler) crawlItemListingPage(itemName string, igxeId, pageNum int, filters map[string]string) (*types.ListingsData, *types.CrawlerControl, error) {
-	log.Printf("Crawling page %d for %s\n", pageNum, itemName)
+	igxeLog("Crawling page %d for %s\n", pageNum, itemName)
 
 	params := url.Values{}
 	params.Add("page_no", strconv.Itoa(pageNum))
@@ -81,6 +80,8 @@ func (c *IgxeCrawler) crawlItemListingPage(itemName string, igxeId, pageNum int,
 
 	// parse data
 	data, err := c.parser.ParseItemListings(itemName, resp, resData)
+
+	igxeLog("Parsed %d listings for %s\n", len(data.Listings), itemName)
 
 	if err != nil {
 		return nil, nil, err
@@ -160,6 +161,8 @@ func (c *IgxeCrawler) crawlItemTransactionPage(itemName string, igxeId, pageNum 
 
 	// parse data
 	data, err := c.parser.ParseItemTransactions(itemName, resp, resData)
+
+	igxeLog("Parsed %d transactions for %s\n", len(data.Transactions), itemName)
 
 	if err != nil {
 		return nil, nil, err
