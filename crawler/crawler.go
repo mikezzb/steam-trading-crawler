@@ -145,8 +145,8 @@ func (c *Crawler) DoReqWithSave(u string, params url.Values, method, savePath st
 }
 
 func (c *Crawler) GetCookies() (string, error) {
-	if c.client.Jar == nil {
-		return "", nil
+	if c.client.Jar == nil || len(c.config.AuthUrls) == 0 {
+		return "", errors.ErrNoCookies
 	}
 	authUrl := c.config.AuthUrls[0]
 	parsedUrl, _ := url.Parse(authUrl)

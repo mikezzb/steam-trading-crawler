@@ -5,7 +5,7 @@ type CrawlerTask struct {
 	Name string `json:"name"`
 	// exteriors to crawl (e.g. Factory New, Minimal Wear, etc.)
 	Exteriors []string `json:"exteriors"`
-	// markets to crawl
+	// markets to crawl (Optional, if not set, crawl all markets)
 	Markets []string `json:"markets"`
 	// in seconds
 	RerunInterval int64 `json:"rerunInterval"`

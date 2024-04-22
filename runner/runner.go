@@ -7,6 +7,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/mikezzb/steam-trading-crawler/config"
 	"github.com/mikezzb/steam-trading-crawler/crawler/buff"
 	"github.com/mikezzb/steam-trading-crawler/crawler/igxe"
 	"github.com/mikezzb/steam-trading-crawler/errors"
@@ -132,7 +133,13 @@ func (r *Runner) Run(tasks []types.CrawlerTask) {
 	marketSubTasks := make(map[string][]types.CrawlerSubTask)
 	for _, task := range tasks {
 		for _, exterior := range task.Exteriors {
-			for _, market := range task.Markets {
+			var markets []string
+			if task.Markets == nil {
+				markets = config.SUPPORTED_MARKETS
+			} else {
+				markets = task.Markets
+			}
+			for _, market := range markets {
 				for taskName, taskConfig := range task.TaskConfigs {
 					fullItemName := shared.FormatItemName(task.Name, exterior, false)
 					marketSubTasks[market] = append(marketSubTasks[market], types.CrawlerSubTask{
@@ -204,15 +211,19 @@ func (r *Runner) recordSubTaskRun(subTaskId string) {
 	r.saveSecrets()
 }
 
+func marketLog(market string, format string, args ...interface{}) {
+	log.Printf("[%s] "+format, append([]interface{}{market}, args...)...)
+}
+
 func (r *Runner) runSubTask(subtask types.CrawlerSubTask) error {
-	log.Printf("[%s] Running subtask %v", subtask.Market, subtask)
+	marketLog(subtask.Market, "Running subtask %v", subtask)
 
 	subTaskId := getSubTaskId(&subtask)
 
 	var exec = func(subtask *types.CrawlerSubTask) error {
 		// check if market has error
 		if err, ok := r.marketErrors[subtask.Market]; ok {
-			log.Printf("Market %s has error: %v, skipping subtask %s", subtask.Market, err, subtask.TaskName)
+			marketLog(subtask.Market, "Market has error: %v, skipping subtask %s", err, subtask.TaskName)
 			return nil
 		}
 
@@ -222,7 +233,7 @@ func (r *Runner) runSubTask(subtask types.CrawlerSubTask) error {
 			lastRunTime := r.taskHistoryStore.Get(subTaskId).(float64)
 			now := shared.GetUnixNow()
 			if now-int64(lastRunTime) < subtask.RerunInterval {
-				log.Printf("Subtask %s already run within %d seconds, skipping", subtask.TaskName, subtask.RerunInterval)
+				marketLog(subtask.Market, "Subtask %s already run within %d seconds, skipping", subtask.TaskName, subtask.RerunInterval)
 				return nil
 			}
 		}
@@ -237,7 +248,7 @@ func (r *Runner) runSubTask(subtask types.CrawlerSubTask) error {
 	r.recordSubTaskRun(subTaskId)
 	// if error, record error
 	if err != nil {
-		log.Printf("[%s] Failed to crawl %s for sub task %s: %v", subtask.Market, subtask.TaskName, subtask.Name, err)
+		marketLog(subtask.Market, "Failed to run subtask %s: %v", subtask.TaskName, err)
 		r.marketErrors[subtask.Market] = err
 		return err
 	}
@@ -245,12 +256,12 @@ func (r *Runner) runSubTask(subtask types.CrawlerSubTask) error {
 	// rerun subtask
 	if r.rerunCounts[subTaskId] < r.maxReruns {
 		waitDuration := time.Duration(subtask.RerunInterval) * time.Second
-		log.Printf("Scheduling rerun %d for subtask %s in %v", r.rerunCounts[subTaskId], subTaskId, waitDuration)
+		marketLog(subtask.Market, "Finished subtask %s, scheduling rerun %d in %v", subtask.TaskName, r.rerunCounts[subTaskId], waitDuration)
 		r.taskTimers[subTaskId] = time.AfterFunc(waitDuration, func() {
 			r.runSubTask(subtask)
 		})
 	} else {
-		log.Printf("Finished subtask %s after %d runs", subTaskId, r.maxReruns)
+		marketLog(subtask.Market, "Completed subtask %s after %d runs", subtask.TaskName, r.maxReruns)
 	}
 
 	return nil

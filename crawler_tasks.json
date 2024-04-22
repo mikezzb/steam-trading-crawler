@@ -3,7 +3,6 @@
     {
       "name": "★ Bayonet | Marble Fade",
       "exteriors": ["Factory New"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -15,7 +14,6 @@
     {
       "name": "★ M9 Bayonet | Marble Fade",
       "exteriors": ["Factory New"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -27,7 +25,6 @@
     {
       "name": "★ Flip Knife | Marble Fade",
       "exteriors": ["Factory New"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -39,7 +36,6 @@
     {
       "name": "★ Karambit | Tiger Tooth",
       "exteriors": ["Factory New"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -51,7 +47,6 @@
     {
       "name": "★ Karambit | Slaughter",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -63,7 +58,6 @@
     {
       "name": "★ Talon Knife | Slaughter",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -75,7 +69,6 @@
     {
       "name": "★ Butterfly Knife | Slaughter",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -87,7 +80,6 @@
     {
       "name": "★ Stiletto Knife | Slaughter",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -99,7 +91,6 @@
     {
       "name": "★ Skeleton Knife | Slaughter",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -111,7 +102,6 @@
     {
       "name": "★ Paracord Knife | Slaughter",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -123,7 +113,6 @@
     {
       "name": "★ Survival Knife | Slaughter",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -135,7 +124,6 @@
     {
       "name": "★ Stiletto Knife | Crimson Web",
       "exteriors": ["Factory New"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -147,7 +135,6 @@
     {
       "name": "★ Karambit | Crimson Web",
       "exteriors": ["Minimal Wear", "Factory New"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -159,7 +146,6 @@
     {
       "name": "★ Butterfly Knife | Crimson Web",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -171,7 +157,6 @@
     {
       "name": "★ Bayonet | Blue Steel",
       "exteriors": ["Minimal Wear", "Field-Tested"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -183,7 +168,6 @@
     {
       "name": "★ Falchion Knife | Blue Steel",
       "exteriors": ["Field-Tested", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -195,7 +179,6 @@
     {
       "name": "★ Karambit | Blue Steel",
       "exteriors": ["Field-Tested", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -207,7 +190,6 @@
     {
       "name": "★ Stiletto Knife | Blue Steel",
       "exteriors": ["Field-Tested", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -219,7 +201,6 @@
     {
       "name": "★ Talon Knife | Blue Steel",
       "exteriors": ["Minimal Wear", "Field-Tested"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -231,7 +212,6 @@
     {
       "name": "★ Skeleton Knife | Blue Steel",
       "exteriors": ["Field-Tested", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -243,7 +223,6 @@
     {
       "name": "★ Survival Knife | Blue Steel",
       "exteriors": ["Field-Tested", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -255,7 +234,6 @@
     {
       "name": "★ Paracord Knife | Blue Steel",
       "exteriors": ["Minimal Wear", "Field-Tested"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -267,7 +245,6 @@
     {
       "name": "★ Nomad Knife | Blue Steel",
       "exteriors": ["Field-Tested"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -279,7 +256,6 @@
     {
       "name": "★ Kukri Knife | Blue Steel",
       "exteriors": ["Field-Tested"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -291,7 +267,6 @@
     {
       "name": "★ Flip Knife | Blue Steel",
       "exteriors": ["Field-Tested"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -303,7 +278,6 @@
     {
       "name": "★ Huntsman Knife | Blue Steel",
       "exteriors": ["Field-Tested"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -315,7 +289,6 @@
     {
       "name": "★ Bayonet | Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -327,7 +300,6 @@
     {
       "name": "★ Flip Knife | Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -339,7 +311,6 @@
     {
       "name": "★ Karambit | Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -351,7 +322,6 @@
     {
       "name": "★ M9 Bayonet | Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -363,7 +333,6 @@
     {
       "name": "★ M9 Bayonet | Gamma Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -375,7 +344,6 @@
     {
       "name": "★ Bayonet | Gamma Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -387,7 +355,6 @@
     {
       "name": "★ Flip Knife | Gamma Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -399,7 +366,6 @@
     {
       "name": "★ Karambit | Gamma Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -411,7 +377,6 @@
     {
       "name": "★ Butterfly Knife | Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {
@@ -423,7 +388,6 @@
     {
       "name": "★ Butterfly Knife | Gamma Doppler",
       "exteriors": ["Factory New", "Minimal Wear"],
-      "markets": ["buff"],
       "rerunInterval": 1800,
       "taskConfigs": {
         "listings": {

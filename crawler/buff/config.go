@@ -1,6 +1,9 @@
 package buff
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 // BUFF CONFIGS
 
@@ -37,4 +40,8 @@ var BUFF_HEADERS = map[string]string{
 	"sec-ch-ua":          "\"Google Chrome\";v=\"123\", \"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"123\"",
 	"sec-ch-ua-mobile":   "?0",
 	"sec-ch-ua-platform": "\"Windows\"",
+}
+
+func buffLog(format string, v ...interface{}) {
+	log.Printf("[buff] "+format, v...)
 }

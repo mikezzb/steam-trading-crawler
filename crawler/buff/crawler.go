@@ -2,7 +2,6 @@ package buff
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"path"
 	"strconv"
@@ -60,7 +59,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	params.Add("allow_tradable_cooldown", "1")
 	params.Add("_", shared.GetTimestampNow())
 
-	log.Printf("Crawling page %d for %s\n", pageNum, itemName)
+	buffLog("Crawling page %d for %s\n", pageNum, itemName)
 
 	utils.AddFilters(params, filters)
 
@@ -79,6 +78,8 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 		return nil, nil, err
 	}
 
+	buffLog("Parsed %d listings for %s\n", len(data.Listings), itemName)
+
 	return data, c.parser.ParseListingControl(resData), nil
 }
 
@@ -89,7 +90,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 	var updatedItem *model.Item
 	// round up
 	numPages := utils.GetNumPages(config.MaxItems, BUFF_LISTING_ITEMS_PER_PAGE)
-	log.Printf("Crawling %d pages for %s\n", numPages, itemName)
+	buffLog("Crawling %d pages for %s\n", numPages, itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
 	if !ok {
@@ -101,7 +102,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 
 		// handle stop
 		if c.crawler.Stopped || err == errors.ErrCrawlerManuallyStopped {
-			log.Printf("Crawler manually stopped\n")
+			buffLog("Crawler manually stopped\n")
 			handler.OnComplete(
 				&types.ItemData{
 					Item: updatedItem,
@@ -168,6 +169,8 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 		return nil, nil, err
 	}
 
+	buffLog("Parsed %d transactions for %s\n", len(data.Transactions), itemName)
+
 	return data, c.parser.ParseTransactionControl(resData), nil
 }
 
@@ -175,7 +178,7 @@ func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.IHand
 	// reset stop flag
 	c.crawler.ResetStop()
 
-	log.Printf("Crawling transactions for %s\n", itemName)
+	buffLog("Crawling transactions for %s\n", itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
 	if !ok {
