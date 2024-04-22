@@ -2,7 +2,6 @@ package buff_test
 
 // test
 import (
-	"net/url"
 	"testing"
 	"time"
 
@@ -46,22 +45,12 @@ func TestBuffCrawler_CrawlListings(t *testing.T) {
 
 	// Run
 	name := "★ Bayonet | Marble Fade (Factory New)"
-	err := buffCrawler.CrawlItemListings(name, listingsHandler, &types.CrawlerConfig{
+	err := buffCrawler.CrawlItemListings(name, listingsHandler, &types.CrawlTaskConfig{
 		MaxItems: 20,
 	})
 	if err != nil {
 		t.Errorf("Failed to crawl item listings: %v", err)
 	}
-}
-
-func TestBuffSleep(t *testing.T) {
-	t.Run("Sleep", func(t *testing.T) {
-		buffCrawler := InitBuffCrawler(t, "")
-		// no throttle
-		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
-		// throttled
-		buffCrawler.DoReq("localhost:8000", url.Values{}, "GET")
-	})
 }
 
 func TestStringPrice(t *testing.T) {

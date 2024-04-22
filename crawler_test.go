@@ -42,7 +42,7 @@ func TestBuff_CrawlTransactions(t *testing.T) {
 
 		t.Run("CrawlItemTransactions", func(t *testing.T) {
 			name := "★ M9 Bayonet | Marble Fade (Factory New)"
-			err := buffCrawler.CrawlItemTransactions(name, handler, &types.CrawlerConfig{})
+			err := buffCrawler.CrawlItemTransactions(name, handler, &types.CrawlTaskConfig{})
 			if err != nil {
 				t.Errorf("Failed to crawl item transactions: %v", err)
 			}

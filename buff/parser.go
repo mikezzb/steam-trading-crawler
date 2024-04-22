@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
@@ -17,8 +16,8 @@ type BuffParser struct {
 }
 
 // Shared by listing and transaction
-func itemToListing(item *BuffItem) model.Listing {
-	return model.Listing{
+func toListing(item *BuffItem) *model.Listing {
+	return &model.Listing{
 		Price:            item.Price,
 		CreatedAt:        item.CreatedAt,
 		UpdatedAt:        item.UpdatedAt,
@@ -39,7 +38,7 @@ func (p *BuffParser) formatItemListings(data *BuffListingResponseData) ([]model.
 	items := data.Data.Items
 	listing := make([]model.Listing, len(items))
 	for i, item := range items {
-		listing[i] = itemToListing(&item)
+		listing[i] = *toListing(&item)
 	}
 	return listing, nil
 }
@@ -49,21 +48,6 @@ func getFirstValue(data map[string]BuffGoodsInfo) BuffGoodsInfo {
 		return v
 	}
 	return BuffGoodsInfo{}
-}
-
-// extract the lowest price from for each listing page, update lowest price at crawler
-func ExtractLowestPrice(listing []model.Listing) string {
-	if len(listing) == 0 {
-		return errors.SafeInvalidPrice
-	}
-
-	lowestPrice := listing[0].Price
-	for _, item := range listing {
-		if item.Price < lowestPrice {
-			lowestPrice = item.Price
-		}
-	}
-	return lowestPrice
 }
 
 func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
@@ -77,7 +61,7 @@ func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, list
 	}
 
 	buffPrice := model.MarketPrice{
-		Price:     ExtractLowestPrice(listings),
+		Price:     utils.ExtractLowestPrice(listings),
 		UpdatedAt: now,
 	}
 
@@ -115,7 +99,7 @@ func (p *BuffParser) formatItemTransactions(data *BuffTransactionResponseData) (
 	items := data.Data.Items
 	transactions := make([]model.Transaction, len(items))
 	for i, item := range items {
-		transactions[i] = model.Transaction(itemToListing(&item))
+		transactions[i] = model.Transaction(*toListing(&item))
 	}
 	return transactions, nil
 }
@@ -137,14 +121,14 @@ func (p *BuffParser) ParseItemTransactions(name string, resp *http.Response, res
 	}
 }
 
-func (p *BuffParser) ParseListingControl(resData *BuffListingResponseData) *Control {
-	return &Control{
+func (p *BuffParser) ParseListingControl(resData *BuffListingResponseData) *types.CrawlerControl {
+	return &types.CrawlerControl{
 		TotalPages: resData.Data.TotalPages,
 	}
 }
 
-func (p *BuffParser) ParseTransactionControl(resData *BuffTransactionResponseData) *Control {
-	return &Control{
+func (p *BuffParser) ParseTransactionControl(resData *BuffTransactionResponseData) *types.CrawlerControl {
+	return &types.CrawlerControl{
 		TotalPages: resData.Data.TotalPages,
 	}
 }

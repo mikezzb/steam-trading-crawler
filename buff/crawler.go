@@ -28,7 +28,6 @@ func (c *BuffCrawler) GetCookies() (string, error) {
 }
 
 func NewCrawler(cookie string) (*BuffCrawler, error) {
-	c := &BuffCrawler{}
 	config := &utils.CrawlerConfig{
 		Cookie:      cookie,
 		AuthUrls:    []string{BUFF_LISTING_API, BUFF_TRANSACTION_API},
@@ -36,17 +35,20 @@ func NewCrawler(cookie string) (*BuffCrawler, error) {
 		SleepMaxSec: BUFF_SLEEP_TIME_MAX_S,
 		Headers:     BUFF_HEADERS,
 	}
-
 	crawler, err := utils.NewCrawler(config)
 	if err != nil {
 		return nil, err
 	}
-	c.crawler = crawler
 
-	return c, nil
+	parser := &BuffParser{}
+
+	return &BuffCrawler{
+		crawler: crawler,
+		parser:  parser,
+	}, nil
 }
 
-func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int, filters map[string]string) (*types.ListingsData, *Control, error) {
+func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int, filters map[string]string) (*types.ListingsData, *types.CrawlerControl, error) {
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
 	params.Add("goods_id", strconv.Itoa(buffId))
@@ -59,9 +61,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 
 	log.Printf("Crawling page %d for %s\n", pageNum, itemName)
 
-	for k, v := range filters {
-		params.Add(k, v)
-	}
+	utils.AddFilters(params, filters)
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow()))
 	resData := &BuffListingResponseData{}
@@ -81,21 +81,21 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	return data, c.parser.ParseListingControl(resData), nil
 }
 
-func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
+func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, config *types.CrawlTaskConfig) error {
 	// reset stop flag
 	c.crawler.ResetStop()
 
 	var updatedItem *model.Item
 	// round up
-	maxPages := (config.MaxItems + BUFF_LISTING_ITEMS_PER_PAGE - 1) / BUFF_LISTING_ITEMS_PER_PAGE
-	log.Printf("Crawling %d pages for %s\n", maxPages, itemName)
+	numPages := utils.GetNumPages(config.MaxItems, BUFF_LISTING_ITEMS_PER_PAGE)
+	log.Printf("Crawling %d pages for %s\n", numPages, itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
 	if !ok {
 		return errors.ErrItemNotFound
 	}
 
-	for i := 1; i <= maxPages; i++ {
+	for i := 1; i <= numPages; i++ {
 		data, control, err := c.CrawlItemListingPage(itemName, buffId, i, config.Filters)
 
 		// handle stop
@@ -121,7 +121,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 		} else {
 			// update the price
 			if data.Item.BuffPrice.Price < updatedItem.BuffPrice.Price {
-				updatedItem.BuffPrice.Price = data.Item.BuffPrice.Price
+				updatedItem.BuffPrice = data.Item.BuffPrice
 			}
 		}
 
@@ -144,18 +144,13 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.Handler, 
 	return nil
 }
 
-func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filters map[string]string) (*types.TransactionData, *Control, error) {
-	// reset stop flag
-	c.crawler.ResetStop()
-
+func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filters map[string]string) (*types.TransactionData, *types.CrawlerControl, error) {
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
 	params.Add("goods_id", strconv.Itoa(buffId))
 	params.Add("_", shared.GetTimestampNow())
 
-	for k, v := range filters {
-		params.Add(k, v)
-	}
+	utils.AddFilters(params, filters)
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_t_%s_%s.json", itemName, shared.GetTimestampNow()))
 	resData := &BuffTransactionResponseData{}
@@ -175,7 +170,10 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 	return data, c.parser.ParseTransactionControl(resData), nil
 }
 
-func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.Handler, config *types.CrawlerConfig) error {
+func (c *BuffCrawler) CrawlItemTransactions(itemName string, handler types.Handler, config *types.CrawlTaskConfig) error {
+	// reset stop flag
+	c.crawler.ResetStop()
+
 	log.Printf("Crawling transactions for %s\n", itemName)
 	// convert name to buff id
 	buffId, ok := shared.GetBuffIds()[itemName]
