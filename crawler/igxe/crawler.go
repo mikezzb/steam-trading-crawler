@@ -10,6 +10,7 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database/model"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type IgxeCrawler struct {
@@ -46,12 +47,12 @@ func (c *IgxeCrawler) GetCookies() (string, error) {
 	return c.crawler.GetCookies()
 }
 
-func (c *IgxeCrawler) getItemWithPrice(name, price string) *model.Item {
+func (c *IgxeCrawler) getItemWithPrice(name string, price primitive.Decimal128) *model.Item {
 	return &model.Item{
 		Name: name,
 		IgxePrice: model.MarketPrice{
 			Price:     price,
-			UpdatedAt: shared.GetUnixNow(),
+			UpdatedAt: shared.GetNow(),
 		},
 	}
 }
@@ -72,7 +73,7 @@ func (c *IgxeCrawler) crawlItemListingPage(itemName string, igxeId, pageNum int,
 	savePath := getIgxeSavePath(itemName, pageNum, "l")
 
 	resData := &IgxeListingResponseData{}
-	resp, err := c.crawler.DoReqWithSave(productUrl, params, "GET", savePath, resData)
+	resp, err := c.crawler.DoReqWithSave(productUrl, params, "GET", savePath, resData, getRefererHeader(igxeId))
 
 	if err != nil {
 		return nil, nil, err
@@ -101,7 +102,7 @@ func (c *IgxeCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 		return err
 	}
 
-	var updatedItem *model.Item = c.getItemWithPrice(itemName, shared.MAX_SAFE_STR)
+	var updatedItem *model.Item = c.getItemWithPrice(itemName, shared.MAX_DECIMAL128)
 	numPages := utils.GetNumPages(config.MaxItems, IGXE_LISTING_ITEMS_PER_PAGE)
 
 	for i := 1; i <= numPages; i++ {
@@ -126,8 +127,9 @@ func (c *IgxeCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 		if updatedItem == nil {
 			updatedItem = data.Item
 		} else {
-			if data.Item.IgxePrice.Price < updatedItem.IgxePrice.Price {
-				updatedItem.IgxePrice = data.Item.IgxePrice
+			if shared.DecCompareTo(data.Item.IgxePrice.Price, updatedItem.IgxePrice.Price) < 0 {
+				updatedItem.IgxePrice.Price = data.Item.IgxePrice.Price
+				updatedItem.IgxePrice.UpdatedAt = data.Item.IgxePrice.UpdatedAt
 			}
 		}
 
@@ -148,12 +150,13 @@ func (c *IgxeCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 
 func (c *IgxeCrawler) crawlItemTransactionPage(itemName string, igxeId, pageNum int, filters map[string]string) (*types.TransactionData, *types.CrawlerControl, error) {
 	params := url.Values{}
+	utils.AddFilters(params, filters)
 
 	transUrl := getIgxeTransactionUrl(igxeId)
 	savePath := getIgxeSavePath(itemName, pageNum, "t")
 
 	resData := &IgxeTransactionResponseData{}
-	resp, err := c.crawler.DoReqWithSave(transUrl, params, "GET", savePath, resData)
+	resp, err := c.crawler.DoReqWithSave(transUrl, params, "GET", savePath, resData, getRefererHeader(igxeId))
 
 	if err != nil {
 		return nil, nil, err

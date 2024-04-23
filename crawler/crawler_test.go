@@ -15,8 +15,8 @@ func TestThrottle(t *testing.T) {
 			SleepMaxSec: 2,
 		})
 		// no throttle
-		crawler.DoReq("localhost:8000", url.Values{}, "GET")
+		crawler.DoReq("localhost:8000", url.Values{}, "GET", nil)
 		// throttled
-		crawler.DoReq("localhost:8000", url.Values{}, "GET")
+		crawler.DoReq("localhost:8000", url.Values{}, "GET", nil)
 	})
 }

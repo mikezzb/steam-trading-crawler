@@ -17,15 +17,15 @@ type BuffParser struct {
 // Shared by listing and transaction
 func toListing(item *BuffItem) *model.Listing {
 	return &model.Listing{
-		Price:            item.Price,
-		CreatedAt:        item.CreatedAt,
-		UpdatedAt:        item.UpdatedAt,
+		Price:            shared.GetDecimal128(item.Price),
+		CreatedAt:        shared.UnixToTime(item.CreatedAt),
+		UpdatedAt:        shared.UnixToTime(item.UpdatedAt),
 		PreviewUrl:       item.PreviewUrl,
 		GoodsId:          item.GoodsId,
 		ClassId:          item.AssetInfo.ClassId,
 		AssetId:          item.AssetInfo.AssetId,
 		TradableCooldown: item.AssetInfo.TradableCooldown,
-		PaintWear:        item.AssetInfo.PaintWear,
+		PaintWear:        shared.GetDecimal128(item.AssetInfo.PaintWear),
 		PaintIndex:       item.AssetInfo.Info.PaintIndex,
 		PaintSeed:        item.AssetInfo.Info.PaintSeed,
 		InstanceId:       item.AssetInfo.InstanceId,
@@ -52,10 +52,10 @@ func getFirstValue(data map[string]BuffGoodsInfo) BuffGoodsInfo {
 func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
 	item := getFirstValue(data.Data.GoodsInfos)
 
-	now := shared.GetUnixNow()
+	now := shared.GetNow()
 
 	steamPrice := model.MarketPrice{
-		Price:     item.SteamPrice,
+		Price:     shared.GetDecimal128(item.SteamPrice),
 		UpdatedAt: now,
 	}
 
@@ -93,11 +93,30 @@ func (p *BuffParser) ParseItemListings(name string, resp *http.Response, resData
 	}
 }
 
+func (p *BuffParser) toTransaction(item *BuffItem) *model.Transaction {
+	return &model.Transaction{
+		Price:            shared.GetDecimal128(item.Price),
+		CreatedAt:        shared.UnixToTime(item.CreatedAt),
+		PreviewUrl:       item.PreviewUrl,
+		GoodsId:          item.GoodsId,
+		ClassId:          item.AssetInfo.ClassId,
+		TradableCooldown: item.AssetInfo.TradableCooldown,
+		PaintWear:        shared.GetDecimal128(item.AssetInfo.PaintWear),
+		PaintIndex:       item.AssetInfo.Info.PaintIndex,
+		PaintSeed:        item.AssetInfo.Info.PaintSeed,
+		InstanceId:       item.AssetInfo.InstanceId,
+		Metadata: model.TransactionMetadata{
+			AssetId: item.AssetInfo.AssetId,
+			Market:  shared.MARKET_NAME_BUFF,
+		},
+	}
+}
+
 func (p *BuffParser) formatItemTransactions(data *BuffTransactionResponseData) ([]model.Transaction, error) {
 	items := data.Data.Items
 	transactions := make([]model.Transaction, len(items))
 	for i, item := range items {
-		transactions[i] = model.Transaction(*toListing(&item))
+		transactions[i] = *p.toTransaction(&item)
 	}
 	return transactions, nil
 }

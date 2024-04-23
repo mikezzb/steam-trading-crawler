@@ -65,7 +65,7 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow()))
 	resData := &BuffListingResponseData{}
-	resp, err := c.crawler.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath, resData)
+	resp, err := c.crawler.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath, resData, getRefererHeader(buffId))
 
 	if err != nil {
 		return nil, nil, err
@@ -122,8 +122,8 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 			updatedItem = data.Item
 		} else {
 			// update the price
-			if data.Item.BuffPrice.Price < updatedItem.BuffPrice.Price {
-				updatedItem.BuffPrice = data.Item.BuffPrice
+			if shared.DecCompareTo(data.Item.SteamPrice.Price, updatedItem.SteamPrice.Price) < 0 {
+				updatedItem.SteamPrice = data.Item.SteamPrice
 			}
 		}
 
@@ -156,7 +156,7 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 
 	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_t_%s_%s.json", itemName, shared.GetTimestampNow()))
 	resData := &BuffTransactionResponseData{}
-	resp, err := c.crawler.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath, resData)
+	resp, err := c.crawler.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath, resData, getRefererHeader(buffId))
 
 	if err != nil {
 		return nil, nil, err

@@ -28,7 +28,6 @@ func OnError(err error) {
 }
 
 func OnComplete(result interface{}) {
-	log.Println("Complete")
 }
 
 func NewHandlerFactory(repos repository.RepoFactory, config *HandlerConfig) *HandlerFactory {
@@ -51,7 +50,10 @@ func (f *HandlerFactory) GetTransactionHandler() types.IHandler {
 			transactionRepo := f.repos.GetTransactionRepository()
 			data := result.(*types.TransactionData)
 			transactions := data.Transactions
-			transactionRepo.UpsertTransactionsByAssetID(transactions)
+			err := transactionRepo.UpsertTransactionsByAssetID(transactions)
+			if err != nil {
+				log.Printf("Failed to upsert transactions: %v", err)
+			}
 		},
 		OnError,
 		OnComplete,

@@ -16,16 +16,16 @@ type IgxeParser struct {
 }
 
 func toListing(item *IgxeListing) *model.Listing {
-	updatedAt, _ := shared.ConvertToUnixTimestamp(item.LastUpdated)
+	updatedAt, _ := shared.ParseDateHhmmss(item.LastUpdated)
 	return &model.Listing{
-		Price:      item.Price,
+		Price:      shared.GetDecimal128(item.Price),
 		CreatedAt:  updatedAt,
 		UpdatedAt:  updatedAt,
 		PreviewUrl: item.InspectImgSmall,
 
 		AssetId:          item.SteamPid,
 		TradableCooldown: item.LockSpanStr,
-		PaintWear:        item.ExteriorWear,
+		PaintWear:        shared.GetDecimal128(item.ExteriorWear),
 		PaintIndex:       item.PaintIndex,
 		PaintSeed:        item.PaintSeed,
 		InstanceId:       strconv.Itoa(item.ID),
@@ -44,7 +44,7 @@ func (p *IgxeParser) formatListings(data *IgxeListingResponseData) ([]model.List
 }
 
 func (p *IgxeParser) getPriceItem(name string, listings []model.Listing) (*model.Item, error) {
-	now := shared.GetUnixNow()
+	now := shared.GetNow()
 
 	igxePrice := model.MarketPrice{
 		Price:     utils.ExtractLowestPrice(listings),
@@ -85,20 +85,20 @@ func (p *IgxeParser) ParseListingControl(resData *IgxeListingResponseData) *type
 }
 
 func toTransactions(item *IgxeTransaction) *model.Transaction {
-	timestamp, _ := shared.ConvertChineseDateToUnix(item.LastUpdated)
+	timestamp, _ := shared.ParseChineseDate(item.LastUpdated)
 	return &model.Transaction{
-		Price:     item.Price,
+		Price:     shared.GetDecimal128(item.Price),
 		CreatedAt: timestamp,
-		UpdatedAt: timestamp,
 
-		PaintWear:  item.ExteriorWear,
+		PaintWear:  shared.GetDecimal128(item.ExteriorWear),
 		PaintIndex: item.PaintIndex,
 		PaintSeed:  item.PaintSeed,
 		InstanceId: strconv.Itoa(item.ID),
-		// MUST provide an unique asset id to upsert
-		AssetId: strconv.Itoa(item.ID),
-
-		Market: shared.MARKET_NAME_IGXE,
+		Metadata: model.TransactionMetadata{
+			// MUST provide an unique asset id to upsert
+			AssetId: strconv.Itoa(item.ID),
+			Market:  shared.MARKET_NAME_IGXE,
+		},
 	}
 }
 

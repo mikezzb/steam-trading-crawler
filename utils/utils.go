@@ -11,21 +11,21 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mikezzb/steam-trading-crawler/errors"
 	"github.com/mikezzb/steam-trading-crawler/types"
 	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database/model"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // extract the lowest price from for each listing page, update lowest price at crawler
-func ExtractLowestPrice(listing []model.Listing) string {
+func ExtractLowestPrice(listing []model.Listing) primitive.Decimal128 {
 	if len(listing) == 0 {
-		return errors.SafeInvalidPrice
+		return shared.MAX_DECIMAL128
 	}
 
 	lowestPrice := listing[0].Price
 	for _, item := range listing {
-		if item.Price < lowestPrice {
+		if shared.DecCompareTo(item.Price, lowestPrice) < 0 {
 			lowestPrice = item.Price
 		}
 	}

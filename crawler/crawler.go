@@ -59,8 +59,8 @@ func NewCrawler(config *CrawlerConfig) (*Crawler, error) {
 	return c, nil
 }
 
-func (c *Crawler) SetHeaders(req *http.Request) {
-	for k, v := range c.config.Headers {
+func (c *Crawler) SetHeaders(req *http.Request, headers map[string]string) {
+	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
 }
@@ -79,7 +79,7 @@ func (c *Crawler) sleepForSafe() {
 	c.lastReqTime = time.Now()
 }
 
-func (c *Crawler) DoReq(u string, params url.Values, method string) (*http.Response, error) {
+func (c *Crawler) DoReq(u string, params url.Values, method string, headers map[string]string) (*http.Response, error) {
 	c.sleepForSafe()
 
 	if c.Stopped {
@@ -101,7 +101,8 @@ func (c *Crawler) DoReq(u string, params url.Values, method string) (*http.Respo
 	}
 
 	// set headers
-	c.SetHeaders(req)
+	c.SetHeaders(req, c.config.Headers)
+	c.SetHeaders(req, headers)
 
 	// do request
 	resp, err := c.client.Do(req)
@@ -112,8 +113,8 @@ func (c *Crawler) DoReq(u string, params url.Values, method string) (*http.Respo
 	return resp, nil
 }
 
-func (c *Crawler) DoReqWithSave(u string, params url.Values, method, savePath string, resData interface{}) (*http.Response, error) {
-	resp, err := c.DoReq(u, params, method)
+func (c *Crawler) DoReqWithSave(u string, params url.Values, method, savePath string, resData interface{}, headers map[string]string) (*http.Response, error) {
+	resp, err := c.DoReq(u, params, method, headers)
 	if err != nil {
 		return nil, err
 	}

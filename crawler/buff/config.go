@@ -2,6 +2,7 @@ package buff
 
 import (
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -10,11 +11,12 @@ import (
 const (
 	BUFF_LISTING_API            = "https://buff.163.com/api/market/goods/sell_order"
 	BUFF_TRANSACTION_API        = "https://buff.163.com/api/market/goods/bill_order"
+	BUFF_ITEM_URL               = "https://buff.163.com/goods"
 	BUFF_CSGO_NAME              = "csgo"
 	BUFF_LISTING_ITEMS_PER_PAGE = 20
 
-	BUFF_SLEEP_TIME_MIN_S = 15
-	BUFF_SLEEP_TIME_MAX_S = 25
+	BUFF_SLEEP_TIME_MIN_S = 20
+	BUFF_SLEEP_TIME_MAX_S = 28
 
 	BUFF_SLEEP_TIME_MIN = BUFF_SLEEP_TIME_MIN_S * time.Second
 	BUFF_SLEEP_TIME_MAX = BUFF_SLEEP_TIME_MAX_S * time.Second
@@ -44,4 +46,11 @@ var BUFF_HEADERS = map[string]string{
 
 func buffLog(format string, v ...interface{}) {
 	log.Printf("[buff] "+format, v...)
+}
+
+func getRefererHeader(buffId int) map[string]string {
+	itemUrl := BUFF_ITEM_URL + "/" + strconv.Itoa(buffId)
+	return map[string]string{
+		"Referer": itemUrl,
+	}
 }

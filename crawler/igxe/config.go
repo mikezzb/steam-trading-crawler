@@ -59,3 +59,10 @@ func getIgxeSavePath(itemName string, pageNum int, label string) string {
 func igxeLog(format string, v ...interface{}) {
 	log.Printf("[igxe] "+format, v...)
 }
+
+func getRefererHeader(itemId int) map[string]string {
+	itemUrl := fmt.Sprintf("https://www.igxe.cn/product/730/%d", itemId)
+	return map[string]string{
+		"Referer": itemUrl,
+	}
+}
