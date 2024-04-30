@@ -54,12 +54,12 @@ func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, list
 
 	now := shared.GetNow()
 
-	steamPrice := model.MarketPrice{
+	steamPrice := &model.MarketPrice{
 		Price:     shared.GetDecimal128(item.SteamPrice),
 		UpdatedAt: now,
 	}
 
-	buffPrice := model.MarketPrice{
+	buffPrice := &model.MarketPrice{
 		Price:     utils.ExtractLowestPrice(listings),
 		UpdatedAt: now,
 	}

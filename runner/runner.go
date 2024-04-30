@@ -203,7 +203,7 @@ func getSubTaskId(subtask *types.CrawlerSubTask) string {
 }
 
 func (r *Runner) recordSubTaskRun(subTaskId string) {
-	r.taskHistoryStore.Set(subTaskId, shared.GetUnixFloat())
+	r.taskHistoryStore.SetAndSave(subTaskId, shared.GetUnixFloat())
 	if _, ok := r.rerunCounts[subTaskId]; !ok {
 		r.rerunCounts[subTaskId] = 0
 	}

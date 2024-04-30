@@ -17,6 +17,9 @@ type ListingHandler struct {
 	// chan
 	listingCh chan *types.ListingsData
 	itemCh    chan *types.ItemData
+
+	// formatter
+	formatter *Formatter
 }
 
 func NewListingHandler(repos repository.RepoFactory, config *HandlerConfig) *ListingHandler {
@@ -28,6 +31,7 @@ func NewListingHandler(repos repository.RepoFactory, config *HandlerConfig) *Lis
 
 		listingCh: make(chan *types.ListingsData, 100),
 		itemCh:    make(chan *types.ItemData, 100),
+		formatter: NewFormatter(),
 	}
 
 	go handler.onListingResult()
@@ -55,7 +59,11 @@ func (h *ListingHandler) OnItemResult() {
 	for data := range h.itemCh {
 		item := data.Item
 		if item != nil {
-			h.itemRepo.UpdateItem(item)
+			log.Printf("Item: %v", item)
+			// format item
+			h.formatter.FormatItem(item)
+			// update item
+			h.itemRepo.UpsertItem(item)
 			// save preview url
 			previewPath := fmt.Sprintf("%s/%s.png", h.config.StaticOutputDir, item.Name)
 			utils.DownloadImage(item.IconUrl, previewPath)

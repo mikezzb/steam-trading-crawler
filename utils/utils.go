@@ -95,6 +95,7 @@ func PostFormatListings(name string, listings []model.Listing) {
 	for i := range listings {
 		// add name to listings
 		listings[i].Name = name
+		listings[i].CheckedAt = shared.GetNow()
 		tier := shared.GetTier(name, listings[i].PaintSeed)
 		log.Printf("%v | %v | PaintSeed: %v | Tier: %v\n", name, listings[i].Price, listings[i].PaintSeed, tier)
 		listings[i].Rarity = tier
@@ -174,8 +175,13 @@ func WriteJSONToFile(data interface{}, filePath string) error {
 	return nil
 }
 
-// read image from url and save it to the specified path
+// read image from url and save it to the specified path, if the image already exists, do nothing
 func DownloadImage(imageURL, path string) error {
+	// check if the image already exists
+	if _, err := os.Stat(path); err == nil {
+		return nil
+	}
+
 	resp, err := http.Get(imageURL)
 	if err != nil {
 		return err

@@ -6,7 +6,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -17,7 +17,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -28,7 +28,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -39,7 +39,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -50,7 +50,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -61,7 +61,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -72,7 +72,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -83,7 +83,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -94,7 +94,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -105,7 +105,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -116,7 +116,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -127,7 +127,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -138,7 +138,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -149,7 +149,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -160,7 +160,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -171,7 +171,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -182,7 +182,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 40
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -193,7 +193,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 40
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -204,7 +204,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 40
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -215,7 +215,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -226,7 +226,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -237,7 +237,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -248,7 +248,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -259,7 +259,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -270,7 +270,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -281,7 +281,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -292,7 +292,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -303,7 +303,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }
@@ -314,7 +314,7 @@
       "rerunInterval": 4500,
       "taskConfigs": {
         "listings": {
-          "maxItems": 80
+          "maxItems": 20
         },
         "transactions": {}
       }

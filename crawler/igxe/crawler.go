@@ -50,7 +50,7 @@ func (c *IgxeCrawler) GetCookies() (string, error) {
 func (c *IgxeCrawler) getItemWithPrice(name string, price primitive.Decimal128) *model.Item {
 	return &model.Item{
 		Name: name,
-		IgxePrice: model.MarketPrice{
+		IgxePrice: &model.MarketPrice{
 			Price:     price,
 			UpdatedAt: shared.GetNow(),
 		},

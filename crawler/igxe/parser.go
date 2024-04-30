@@ -44,11 +44,9 @@ func (p *IgxeParser) formatListings(data *IgxeListingResponseData) ([]model.List
 }
 
 func (p *IgxeParser) getPriceItem(name string, listings []model.Listing) (*model.Item, error) {
-	now := shared.GetNow()
-
-	igxePrice := model.MarketPrice{
+	igxePrice := &model.MarketPrice{
 		Price:     utils.ExtractLowestPrice(listings),
-		UpdatedAt: now,
+		UpdatedAt: shared.GetNow(),
 	}
 
 	item := &model.Item{
