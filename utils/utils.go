@@ -9,23 +9,23 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mikezzb/steam-trading-crawler/types"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database/model"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // extract the lowest price from for each listing page, update lowest price at crawler
-func ExtractLowestPrice(listing []model.Listing) primitive.Decimal128 {
+func ExtractLowestPrice(listing []types.Listing) string {
 	if len(listing) == 0 {
-		return shared.MAX_DECIMAL128
+		return shared.MAX_NUM_STR
 	}
 
 	lowestPrice := listing[0].Price
 	for _, item := range listing {
-		if shared.DecCompareTo(item.Price, lowestPrice) < 0 {
+		if shared.NumStrCmp(item.Price, lowestPrice) < 0 {
 			lowestPrice = item.Price
 		}
 	}
@@ -91,7 +91,7 @@ func UpdateSecrets(crawler types.ICrawler, store *shared.JsonKvStore, label stri
 	store.Save()
 }
 
-func PostFormatListings(name string, listings []model.Listing) {
+func PostFormatListings(name string, listings []types.Listing) {
 	for i := range listings {
 		// add name to listings
 		listings[i].Name = name
@@ -102,7 +102,7 @@ func PostFormatListings(name string, listings []model.Listing) {
 	}
 }
 
-func PostFormatTransactions(name string, transactions []model.Transaction) {
+func PostFormatTransactions(name string, transactions []types.Transaction) {
 	for i := range transactions {
 		// add name to transactions
 		transactions[i].Name = name
@@ -214,4 +214,12 @@ func AddFilters(params url.Values, filters map[string]string) {
 	for k, v := range filters {
 		params.Add(k, v)
 	}
+}
+
+// Shanghai timezone
+func GetBuffTimestamp() string {
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	currTime := time.Now().In(loc)
+	timestamp := currTime.UnixNano() / int64(time.Millisecond)
+	return strconv.FormatInt(timestamp, 10)
 }

@@ -7,17 +7,15 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
-
-	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 type BuffParser struct {
 }
 
 // Shared by listing and transaction
-func toListing(item *BuffItem) *model.Listing {
-	return &model.Listing{
-		Price:            shared.GetDecimal128(item.Price),
+func toListing(item *BuffItem) *types.Listing {
+	return &types.Listing{
+		Price:            item.Price,
 		CreatedAt:        shared.UnixToTime(item.CreatedAt),
 		UpdatedAt:        shared.UnixToTime(item.UpdatedAt),
 		PreviewUrl:       item.PreviewUrl,
@@ -25,7 +23,7 @@ func toListing(item *BuffItem) *model.Listing {
 		ClassId:          item.AssetInfo.ClassId,
 		AssetId:          item.AssetInfo.AssetId,
 		TradableCooldown: item.AssetInfo.TradableCooldown,
-		PaintWear:        shared.GetDecimal128(item.AssetInfo.PaintWear),
+		PaintWear:        item.AssetInfo.PaintWear,
 		PaintIndex:       item.AssetInfo.Info.PaintIndex,
 		PaintSeed:        item.AssetInfo.Info.PaintSeed,
 		InstanceId:       item.AssetInfo.InstanceId,
@@ -33,9 +31,9 @@ func toListing(item *BuffItem) *model.Listing {
 	}
 }
 
-func (p *BuffParser) formatItemListings(data *BuffListingResponseData) ([]model.Listing, error) {
+func (p *BuffParser) formatItemListings(data *BuffListingResponseData) ([]types.Listing, error) {
 	items := data.Data.Items
-	listing := make([]model.Listing, len(items))
+	listing := make([]types.Listing, len(items))
 	for i, item := range items {
 		listing[i] = *toListing(&item)
 	}
@@ -49,22 +47,22 @@ func getFirstValue(data map[string]BuffGoodsInfo) BuffGoodsInfo {
 	return BuffGoodsInfo{}
 }
 
-func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, listings []model.Listing) (*model.Item, error) {
+func (p *BuffParser) formatItem(name string, data *BuffListingResponseData, listings []types.Listing) (*types.Item, error) {
 	item := getFirstValue(data.Data.GoodsInfos)
 
 	now := shared.GetNow()
 
-	steamPrice := &model.MarketPrice{
-		Price:     shared.GetDecimal128(item.SteamPrice),
+	steamPrice := &types.MarketPrice{
+		Price:     item.SteamPrice,
 		UpdatedAt: now,
 	}
 
-	buffPrice := &model.MarketPrice{
+	buffPrice := &types.MarketPrice{
 		Price:     utils.ExtractLowestPrice(listings),
 		UpdatedAt: now,
 	}
 
-	formattedItems := model.Item{
+	formattedItems := types.Item{
 		Name:       name,
 		IconUrl:    item.IconUrl,
 		SteamPrice: steamPrice,
@@ -93,28 +91,26 @@ func (p *BuffParser) ParseItemListings(name string, resp *http.Response, resData
 	}
 }
 
-func (p *BuffParser) toTransaction(item *BuffItem) *model.Transaction {
-	return &model.Transaction{
-		Price:            shared.GetDecimal128(item.Price),
+func (p *BuffParser) toTransaction(item *BuffItem) *types.Transaction {
+	return &types.Transaction{
+		AssetId:          item.AssetInfo.AssetId,
+		Market:           shared.MARKET_NAME_BUFF,
+		Price:            item.Price,
 		CreatedAt:        shared.UnixToTime(item.CreatedAt),
 		PreviewUrl:       item.PreviewUrl,
 		GoodsId:          item.GoodsId,
 		ClassId:          item.AssetInfo.ClassId,
 		TradableCooldown: item.AssetInfo.TradableCooldown,
-		PaintWear:        shared.GetDecimal128(item.AssetInfo.PaintWear),
+		PaintWear:        item.AssetInfo.PaintWear,
 		PaintIndex:       item.AssetInfo.Info.PaintIndex,
 		PaintSeed:        item.AssetInfo.Info.PaintSeed,
 		InstanceId:       item.AssetInfo.InstanceId,
-		Metadata: model.TransactionMetadata{
-			AssetId: item.AssetInfo.AssetId,
-			Market:  shared.MARKET_NAME_BUFF,
-		},
 	}
 }
 
-func (p *BuffParser) formatItemTransactions(data *BuffTransactionResponseData) ([]model.Transaction, error) {
+func (p *BuffParser) formatItemTransactions(data *BuffTransactionResponseData) ([]types.Transaction, error) {
 	items := data.Data.Items
-	transactions := make([]model.Transaction, len(items))
+	transactions := make([]types.Transaction, len(items))
 	for i, item := range items {
 		transactions[i] = *p.toTransaction(&item)
 	}

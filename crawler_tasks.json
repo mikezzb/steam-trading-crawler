@@ -318,6 +318,18 @@
         },
         "transactions": {}
       }
+    },
+    {
+      "name": "★ Stiletto Knife | Doppler",
+      "exteriors": ["Factory New"],
+      "markets": ["igxe"],
+      "rerunInterval": 4500,
+      "taskConfigs": {
+        "listings": {
+          "maxItems": 20
+        },
+        "transactions": {}
+      }
     }
   ]
 }

@@ -45,12 +45,15 @@ func (f *HandlerFactory) GetListingsHandler() types.IHandler {
 }
 
 func (f *HandlerFactory) GetTransactionHandler() types.IHandler {
+	formatter := NewFormatter()
 	return NewBaseHandler(
 		func(result interface{}) {
 			transactionRepo := f.repos.GetTransactionRepository()
 			data := result.(*types.TransactionData)
 			transactions := data.Transactions
-			err := transactionRepo.UpsertTransactionsByAssetID(transactions)
+			err := transactionRepo.UpsertTransactionsByAssetID(
+				formatter.FormatTransactions(transactions),
+			)
 			if err != nil {
 				log.Printf("Failed to upsert transactions: %v", err)
 			}

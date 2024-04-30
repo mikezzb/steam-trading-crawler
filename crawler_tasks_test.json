@@ -1,13 +1,13 @@
 {
   "tasks": [
     {
-      "name": "★ Paracord Knife | Blue Steel",
-      "exteriors": ["Factory New", "Minimal Wear"],
+      "name": "★ Stiletto Knife | Doppler",
+      "exteriors": ["Factory New"],
       "markets": ["igxe"],
-      "rerunInterval": 100,
+      "rerunInterval": 1000,
       "taskConfigs": {
         "listings": {
-          "maxItems": 20
+          "maxItems": 10
         },
         "transactions": {}
       }

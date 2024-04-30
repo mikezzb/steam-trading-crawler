@@ -9,8 +9,6 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database/model"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type IgxeCrawler struct {
@@ -47,10 +45,10 @@ func (c *IgxeCrawler) GetCookies() (string, error) {
 	return c.crawler.GetCookies()
 }
 
-func (c *IgxeCrawler) getItemWithPrice(name string, price primitive.Decimal128) *model.Item {
-	return &model.Item{
+func (c *IgxeCrawler) getItemWithPrice(name string, price string) *types.Item {
+	return &types.Item{
 		Name: name,
-		IgxePrice: &model.MarketPrice{
+		IgxePrice: &types.MarketPrice{
 			Price:     price,
 			UpdatedAt: shared.GetNow(),
 		},
@@ -102,7 +100,7 @@ func (c *IgxeCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 		return err
 	}
 
-	var updatedItem *model.Item = c.getItemWithPrice(itemName, shared.MAX_DECIMAL128)
+	updatedItem := c.getItemWithPrice(itemName, shared.MAX_NUM_STR)
 	numPages := utils.GetNumPages(config.MaxItems, IGXE_LISTING_ITEMS_PER_PAGE)
 
 	for i := 1; i <= numPages; i++ {
@@ -127,7 +125,7 @@ func (c *IgxeCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 		if updatedItem == nil {
 			updatedItem = data.Item
 		} else {
-			if shared.DecCompareTo(data.Item.IgxePrice.Price, updatedItem.IgxePrice.Price) < 0 {
+			if shared.NumStrCmp(data.Item.IgxePrice.Price, updatedItem.IgxePrice.Price) < 0 {
 				updatedItem.IgxePrice.Price = data.Item.IgxePrice.Price
 				updatedItem.IgxePrice.UpdatedAt = data.Item.IgxePrice.UpdatedAt
 			}

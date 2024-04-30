@@ -48,7 +48,9 @@ func (h *ListingHandler) Close() {
 func (h *ListingHandler) onListingResult() {
 	for data := range h.listingCh {
 		listings := data.Listings
-		_, err := h.listingRepo.UpsertListingsByAssetID(listings)
+		_, err := h.listingRepo.UpsertListingsByAssetID(
+			h.formatter.FormatListings(listings),
+		)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -61,9 +63,9 @@ func (h *ListingHandler) OnItemResult() {
 		if item != nil {
 			log.Printf("Item: %v", item)
 			// format item
-			h.formatter.FormatItem(item)
-			// update item
-			h.itemRepo.UpsertItem(item)
+			itemModel := h.formatter.FormatItem(item)
+			// update item by id
+			h.itemRepo.UpsertItem(itemModel)
 			// save preview url
 			previewPath := fmt.Sprintf("%s/%s.png", h.config.StaticOutputDir, item.Name)
 			utils.DownloadImage(item.IconUrl, previewPath)

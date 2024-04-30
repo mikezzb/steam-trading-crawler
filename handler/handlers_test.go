@@ -6,10 +6,8 @@ import (
 
 	"github.com/mikezzb/steam-trading-crawler/handler"
 	"github.com/mikezzb/steam-trading-crawler/types"
-	shared "github.com/mikezzb/steam-trading-shared"
 
 	"github.com/mikezzb/steam-trading-shared/database"
-	"github.com/mikezzb/steam-trading-shared/database/model"
 	"github.com/mikezzb/steam-trading-shared/database/repository"
 )
 
@@ -43,14 +41,12 @@ func TestTransactionHandler(t *testing.T) {
 		defer dbClient.Disconnect()
 
 		transactionData := &types.TransactionData{
-			Transactions: []model.Transaction{
+			Transactions: []types.Transaction{
 				{
-					Price:     shared.GetDecimal128("1.001"),
+					Price:     "1.001",
 					CreatedAt: time.Now(),
-					Metadata: model.TransactionMetadata{
-						AssetId: "123",
-						Market:  "igxe",
-					},
+					AssetId:   "123",
+					Market:    "igxe",
 				},
 			},
 		}

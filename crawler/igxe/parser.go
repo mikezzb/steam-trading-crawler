@@ -8,24 +8,23 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 // Implements type.Parser interface
 type IgxeParser struct {
 }
 
-func toListing(item *IgxeListing) *model.Listing {
+func toListing(item *IgxeListing) *types.Listing {
 	updatedAt, _ := shared.ParseDateHhmmss(item.LastUpdated)
-	return &model.Listing{
-		Price:      shared.GetDecimal128(item.Price),
+	return &types.Listing{
+		Price:      item.Price,
 		CreatedAt:  updatedAt,
 		UpdatedAt:  updatedAt,
 		PreviewUrl: item.InspectImgSmall,
 
 		AssetId:          item.SteamPid,
 		TradableCooldown: item.LockSpanStr,
-		PaintWear:        shared.GetDecimal128(item.ExteriorWear),
+		PaintWear:        item.ExteriorWear,
 		PaintIndex:       item.PaintIndex,
 		PaintSeed:        item.PaintSeed,
 		InstanceId:       strconv.Itoa(item.ID),
@@ -34,22 +33,22 @@ func toListing(item *IgxeListing) *model.Listing {
 	}
 }
 
-func (p *IgxeParser) formatListings(data *IgxeListingResponseData) ([]model.Listing, error) {
+func (p *IgxeParser) formatListings(data *IgxeListingResponseData) ([]types.Listing, error) {
 	items := data.Listings
-	listing := make([]model.Listing, len(items))
+	listing := make([]types.Listing, len(items))
 	for i, item := range items {
 		listing[i] = *toListing(&item)
 	}
 	return listing, nil
 }
 
-func (p *IgxeParser) getPriceItem(name string, listings []model.Listing) (*model.Item, error) {
-	igxePrice := &model.MarketPrice{
+func (p *IgxeParser) getPriceItem(name string, listings []types.Listing) (*types.Item, error) {
+	igxePrice := &types.MarketPrice{
 		Price:     utils.ExtractLowestPrice(listings),
 		UpdatedAt: shared.GetNow(),
 	}
 
-	item := &model.Item{
+	item := &types.Item{
 		Name:      name,
 		IgxePrice: igxePrice,
 	}
@@ -82,27 +81,25 @@ func (p *IgxeParser) ParseListingControl(resData *IgxeListingResponseData) *type
 	}
 }
 
-func toTransactions(item *IgxeTransaction) *model.Transaction {
+func toTransactions(item *IgxeTransaction) *types.Transaction {
 	timestamp, _ := shared.ParseChineseDate(item.LastUpdated)
-	return &model.Transaction{
-		Price:     shared.GetDecimal128(item.Price),
+	return &types.Transaction{
+		AssetId: strconv.Itoa(item.ID),
+		Market:  shared.MARKET_NAME_IGXE,
+
+		Price:     item.Price,
 		CreatedAt: timestamp,
 
-		PaintWear:  shared.GetDecimal128(item.ExteriorWear),
+		PaintWear:  item.ExteriorWear,
 		PaintIndex: item.PaintIndex,
 		PaintSeed:  item.PaintSeed,
 		InstanceId: strconv.Itoa(item.ID),
-		Metadata: model.TransactionMetadata{
-			// MUST provide an unique asset id to upsert
-			AssetId: strconv.Itoa(item.ID),
-			Market:  shared.MARKET_NAME_IGXE,
-		},
 	}
 }
 
-func (p *IgxeParser) formatTransactions(data *IgxeTransactionResponseData) ([]model.Transaction, error) {
+func (p *IgxeParser) formatTransactions(data *IgxeTransactionResponseData) ([]types.Transaction, error) {
 	items := data.Data
-	transactions := make([]model.Transaction, len(items))
+	transactions := make([]types.Transaction, len(items))
 	for i, item := range items {
 		transactions[i] = *toTransactions(&item)
 	}

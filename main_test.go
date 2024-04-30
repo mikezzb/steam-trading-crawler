@@ -11,7 +11,6 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
 	"github.com/mikezzb/steam-trading-shared/database"
-	"github.com/mikezzb/steam-trading-shared/database/model"
 	"github.com/mikezzb/steam-trading-shared/database/repository"
 )
 
@@ -53,7 +52,7 @@ func TestBuff_CrawlTransactions(t *testing.T) {
 func TestPostProcessors(t *testing.T) {
 	t.Run("PostFormatTransactions", func(t *testing.T) {
 		name := "★ Bayonet | Marble Fade (Factory New)"
-		transactions := []model.Transaction{
+		transactions := []types.Transaction{
 			{
 				PaintSeed: 727,
 			},

@@ -11,7 +11,6 @@ import (
 	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 type BuffCrawler struct {
@@ -57,13 +56,13 @@ func (c *BuffCrawler) CrawlItemListingPage(itemName string, buffId, pageNum int,
 	params.Add("sort_by", "price.asc")
 	params.Add("mode", "")
 	params.Add("allow_tradable_cooldown", "1")
-	params.Add("_", shared.GetTimestampNow())
+	params.Add("_", utils.GetBuffTimestamp())
 
 	buffLog("Crawling page %d for %s\n", pageNum, itemName)
 
 	utils.AddFilters(params, filters)
 
-	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetTimestampNow()))
+	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_l_%s_%d_%s.json", itemName, pageNum, shared.GetNowHHMMSS()))
 	resData := &BuffListingResponseData{}
 	resp, err := c.crawler.DoReqWithSave(BUFF_LISTING_API, params, "GET", savePath, resData, getRefererHeader(buffId))
 
@@ -87,7 +86,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 	// reset stop flag
 	c.crawler.ResetStop()
 
-	var updatedItem *model.Item
+	var updatedItem *types.Item
 	// round up
 	numPages := utils.GetNumPages(config.MaxItems, BUFF_LISTING_ITEMS_PER_PAGE)
 	buffLog("Crawling %d pages for %s\n", numPages, itemName)
@@ -122,7 +121,7 @@ func (c *BuffCrawler) CrawlItemListings(itemName string, handler types.IHandler,
 			updatedItem = data.Item
 		} else {
 			// update the price
-			if shared.DecCompareTo(data.Item.SteamPrice.Price, updatedItem.SteamPrice.Price) < 0 {
+			if shared.NumStrCmp(data.Item.SteamPrice.Price, updatedItem.SteamPrice.Price) < 0 {
 				updatedItem.SteamPrice = data.Item.SteamPrice
 			}
 		}
@@ -150,11 +149,11 @@ func (c *BuffCrawler) CrawlItemTransactionPage(itemName string, buffId int, filt
 	params := url.Values{}
 	params.Add("game", BUFF_CSGO_NAME)
 	params.Add("goods_id", strconv.Itoa(buffId))
-	params.Add("_", shared.GetTimestampNow())
+	params.Add("_", utils.GetBuffTimestamp())
 
 	utils.AddFilters(params, filters)
 
-	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_t_%s_%s.json", itemName, shared.GetTimestampNow()))
+	savePath := path.Join(BUFF_RAW_RES_DIR, fmt.Sprintf("buff_t_%s_%s.json", itemName, shared.GetNowHHMMSS()))
 	resData := &BuffTransactionResponseData{}
 	resp, err := c.crawler.DoReqWithSave(BUFF_TRANSACTION_API, params, "GET", savePath, resData, getRefererHeader(buffId))
 

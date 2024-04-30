@@ -3,26 +3,26 @@ package utils_test
 import (
 	"testing"
 
+	"github.com/mikezzb/steam-trading-crawler/types"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 func TestGetTier(t *testing.T) {
 	t.Run("GetTier", func(t *testing.T) {
 		testPairs := []struct {
-			listing  model.Listing
+			listing  types.Listing
 			expected string
 		}{
 			{
-				model.Listing{Name: "★ Flip Knife | Marble Fade (Factory New)", PaintSeed: 872},
+				types.Listing{Name: "★ Flip Knife | Marble Fade (Factory New)", PaintSeed: 872},
 				"Tricolor",
 			},
 			{
-				model.Listing{Name: "★ Karambit | Doppler (Factory New)", PaintSeed: 741},
+				types.Listing{Name: "★ Karambit | Doppler (Factory New)", PaintSeed: 741},
 				"Good Phase 2",
 			},
 			{
-				model.Listing{Name: "★ Bayonet | Marble Fade (Factory New)", PaintSeed: 727},
+				types.Listing{Name: "★ Bayonet | Marble Fade (Factory New)", PaintSeed: 727},
 				"FFI",
 			},
 		}

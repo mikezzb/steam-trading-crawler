@@ -53,7 +53,7 @@ func getIgxeTransactionUrl(itemId int) string {
 }
 
 func getIgxeSavePath(itemName string, pageNum int, label string) string {
-	return path.Join(IGXE_RAW_RES_DIR, fmt.Sprintf("igxe_%s_%s_%d_%s.json", label, itemName, pageNum, shared.GetTimestampNow()))
+	return path.Join(IGXE_RAW_RES_DIR, fmt.Sprintf("igxe_%s_%s_%d_%s.json", label, itemName, pageNum, shared.GetNowHHMMSS()))
 }
 
 func igxeLog(format string, v ...interface{}) {

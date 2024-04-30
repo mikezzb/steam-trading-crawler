@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mikezzb/steam-trading-crawler/types"
 	"github.com/mikezzb/steam-trading-crawler/utils"
 	shared "github.com/mikezzb/steam-trading-shared"
-	"github.com/mikezzb/steam-trading-shared/database/model"
 )
 
 func TestImageDownload(t *testing.T) {
@@ -33,27 +33,27 @@ func TestImageDownload(t *testing.T) {
 
 func TestPostFormat(t *testing.T) {
 	t.Run("GetPrice", func(t *testing.T) {
-		listings := []model.Listing{
+		listings := []types.Listing{
 			{
-				Price: shared.GetDecimal128("900"),
+				Price: "900",
 			},
 			{
-				Price: shared.GetDecimal128("2400"),
+				Price: "2400",
 			},
 			{
-				Price: shared.GetDecimal128("10000"),
+				Price: "10000",
 			},
 			{
-				Price: shared.GetDecimal128("10002"),
+				Price: "10002",
 			},
 			{
-				Price: shared.GetDecimal128("10400"),
+				Price: "10400",
 			},
 		}
 
 		lowestPrice := utils.ExtractLowestPrice(listings)
 
-		if shared.DecCompareTo(lowestPrice, listings[0].Price) != 0 {
+		if shared.NumStrCmp(lowestPrice, listings[0].Price) != 0 {
 			t.Errorf("Expected %v, got %v", listings[0].Price, lowestPrice)
 		}
 	})

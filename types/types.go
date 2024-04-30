@@ -1,16 +1,14 @@
 package types
 
-import "github.com/mikezzb/steam-trading-shared/database/model"
-
 type ListingsData struct {
-	Item     *model.Item
-	Listings []model.Listing
+	Item     *Item
+	Listings []Listing
 }
 
 type ItemData struct {
-	Item *model.Item
+	Item *Item
 }
 
 type TransactionData struct {
-	Transactions []model.Transaction
+	Transactions []Transaction
 }
